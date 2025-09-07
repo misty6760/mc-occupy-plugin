@@ -1,15 +1,15 @@
 # Maven 빌드 결과물
 target/
-*.jar
+!target/minecraft-plugin-*.jar
 *.war
 *.ear
 *.zip
 *.tar.gz
 *.rar
 
-# 플러그인 빌드 결과물 (명시적 제외)
-minecraft-plugin-*.jar
-target/minecraft-plugin-*.jar
+# 플러그인 빌드 결과물 (JAR 파일은 포함)
+# minecraft-plugin-*.jar - 플러그인 JAR 파일은 포함
+# target/minecraft-plugin-*.jar - 플러그인 JAR 파일은 포함
 
 # IDE 관련 파일들
 ## IntelliJ IDEA
@@ -160,10 +160,10 @@ cache/
 *.dmg
 *.gz
 *.iso
-*.jar
 *.rar
 *.tar
 *.zip
+# *.jar - 플러그인 JAR 파일은 포함
 
 # 데이터베이스 파일들
 *.db
