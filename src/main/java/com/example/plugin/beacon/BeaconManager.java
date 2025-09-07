@@ -112,12 +112,13 @@ public class BeaconManager {
         World world = center.getWorld();
         if (world == null) return;
 
-        // 사용자 위치 기준 Y좌표 사용 (사용자 Y - 1)
+        // 사용자 위치 기준 Y좌표 사용 (한 칸 더 아래)
         int playerY = player.getLocation().getBlockY();
-        int beaconY = playerY - 1;
-        int baseY = playerY - 2;
+        int beaconY = playerY - 2;  // 신호기: 사용자 Y - 2
+        int baseY = playerY - 3;    // 철블럭 기초: 사용자 Y - 3
+        int glassY = playerY - 1;   // 색유리: 사용자 Y - 1
 
-        // 신호기 기반 구조 생성 (3x3 철 블록) - 사용자 Y - 2
+        // 신호기 기반 구조 생성 (3x3 철 블록) - 사용자 Y - 3
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 Location blockLocation = center.clone().add(x, baseY - center.getBlockY(), z);
@@ -125,14 +126,15 @@ public class BeaconManager {
             }
         }
 
-        // 신호기 배치 - 사용자 Y - 1
+        // 신호기 배치 - 사용자 Y - 2
         Location beaconLocation = center.clone().add(0, beaconY - center.getBlockY(), 0);
         beaconLocation.getBlock().setType(Material.BEACON);
         beaconLocations.put(zone.getName(), beaconLocation);
 
-        // 색유리 위치 준비 (공기로) - 사용자 Y
-        Location glassLocation = center.clone().add(0, playerY - center.getBlockY(), 0);
-        glassLocation.getBlock().setType(Material.AIR);
+        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y - 1
+        Location glassLocation = center.clone().add(0, glassY - center.getBlockY(), 0);
+        Material glassType = getZoneGlassType(zone.getType());
+        glassLocation.getBlock().setType(glassType);
 
         plugin.getLogger().info(zone.getName() + " 점령지에 신호기 구조를 생성했습니다! (Y=" + beaconY + ")");
     }
@@ -164,6 +166,28 @@ public class BeaconManager {
      */
     public Material getTeamGlassType(ChatColor color) {
         return teamColors.getOrDefault(color, Material.WHITE_STAINED_GLASS);
+    }
+
+    /**
+     * 점령지 타입에 맞는 색유리 타입 반환
+     * @param zoneType 점령지 타입
+     * @return 색유리 타입
+     */
+    public Material getZoneGlassType(com.example.plugin.capture.CaptureZone.ZoneType zoneType) {
+        switch (zoneType) {
+            case CENTER:
+                return Material.YELLOW_STAINED_GLASS; // 중앙: 노란색
+            case FIRE:
+                return Material.RED_STAINED_GLASS; // 불: 빨간색
+            case WIND:
+                return Material.LIGHT_BLUE_STAINED_GLASS; // 바람: 하늘색
+            case WATER:
+                return Material.BLUE_STAINED_GLASS; // 물: 파란색
+            case ICE:
+                return Material.LIGHT_GRAY_STAINED_GLASS; // 얼음: 회백색
+            default:
+                return Material.WHITE_STAINED_GLASS; // 기본값: 흰색
+        }
     }
 
     /**
