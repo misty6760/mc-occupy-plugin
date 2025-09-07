@@ -55,13 +55,6 @@ log/
 *.swp
 *.swo
 *~
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
 
 # OS 관련 파일들
 ## Windows
@@ -72,6 +65,7 @@ $RECYCLE.BIN/
 
 ## macOS
 .DS_Store
+.DS_Store?
 .AppleDouble
 .LSOverride
 Icon
@@ -85,7 +79,6 @@ Icon
 .com.apple.timemachine.donotpresent
 
 ## Linux
-*~
 .fuse_hidden*
 .directory
 .Trash-*
@@ -101,7 +94,7 @@ config.properties
 application.properties
 database.properties
 
-# 계획서 및 문서 파일들
+# 계획서 및 문서 파일들 (선택적 제외)
 planning/
 plans/
 documents/
@@ -109,15 +102,16 @@ docs/
 *.doc
 *.docx
 *.pdf
-*.txt
-*.md
-README.md
-CHANGELOG.md
-TODO.md
-NOTES.md
-IDEAS.md
-DESIGN.md
-ARCHITECTURE.md
+
+# 특정 문서 파일들만 제외 (프로젝트 문서는 포함)
+# README.md - 프로젝트 문서이므로 포함
+# CHANGELOG.md - 프로젝트 문서이므로 포함
+# 계획서.txt - 개인 계획서이므로 제외
+planning.txt
+notes.txt
+ideas.txt
+design.txt
+architecture.txt
 
 # 서버 관련 파일들
 server/
@@ -181,3 +175,66 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# 개인 정보 및 민감한 파일들
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+secrets/
+private/
+personal/
+
+# IDE 워크스페이스 설정
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+
+# Maven Wrapper (선택적)
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Gradle (Java 프로젝트용)
+.gradle/
+build/
+gradle/
+gradlew
+gradlew.bat
+
+# IntelliJ IDEA 추가
+*.iml
+*.ipr
+*.iws
+.idea/
+out/
+
+# Eclipse 추가
+.project
+.classpath
+.settings/
+bin/
+tmp/
+
+# VS Code 추가
+.vscode/
+*.code-workspace
+
+# NetBeans 추가
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# 기타 개발 도구
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
