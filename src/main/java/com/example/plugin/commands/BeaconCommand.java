@@ -49,6 +49,9 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
             case "reset":
                 resetBeaconColors(player);
                 break;
+            case "remove":
+                removeBeaconStructures(player);
+                break;
             case "help":
                 showBeaconHelp(player);
                 break;
@@ -92,6 +95,21 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
+     * 신호기 구조 제거
+     * @param player 명령어 실행자
+     */
+    private void removeBeaconStructures(Player player) {
+        if (!player.hasPermission("landcapture.admin")) {
+            player.sendMessage(ChatColor.RED + "이 명령어는 관리자만 사용할 수 있습니다!");
+            return;
+        }
+
+        beaconManager.removeAllBeaconStructures();
+        player.sendMessage(ChatColor.GREEN + "✅ 모든 신호기 구조를 제거했습니다!");
+        player.sendMessage(ChatColor.YELLOW + "신호기, 철블럭, 색유리가 모두 흙으로 교체되었습니다.");
+    }
+
+    /**
      * 신호기 명령어 도움말 표시
      * @param player 대상 플레이어
      */
@@ -99,10 +117,12 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GOLD + "=== 신호기 명령어 도움말 ===");
         player.sendMessage(ChatColor.YELLOW + "/beacon create - 모든 점령지에 신호기 구조 생성");
         player.sendMessage(ChatColor.YELLOW + "/beacon reset - 모든 신호기 색상 초기화");
+        player.sendMessage(ChatColor.YELLOW + "/beacon remove - 모든 신호기 구조 제거 (흙으로 교체)");
         player.sendMessage(ChatColor.YELLOW + "/beacon help - 이 도움말 표시");
         player.sendMessage(ChatColor.GRAY + "");
         player.sendMessage(ChatColor.GRAY + "※ 신호기 구조는 각 점령지 중심 아래에 생성됩니다.");
         player.sendMessage(ChatColor.GRAY + "※ 점령 시 신호기 위에 팀 색상의 색유리가 배치됩니다.");
+        player.sendMessage(ChatColor.GRAY + "※ remove 명령어는 신호기, 철블럭, 색유리를 모두 흙으로 교체합니다.");
     }
 
     @Override
@@ -116,6 +136,9 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
             }
             if ("reset".startsWith(input)) {
                 completions.add("reset");
+            }
+            if ("remove".startsWith(input)) {
+                completions.add("remove");
             }
             if ("help".startsWith(input)) {
                 completions.add("help");

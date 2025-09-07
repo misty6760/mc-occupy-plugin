@@ -205,4 +205,40 @@ public class BeaconManager {
         }
         plugin.getLogger().info("모든 신호기 색상이 초기화되었습니다.");
     }
+
+    /**
+     * 모든 신호기 구조 제거 (신호기, 철블럭, 색유리를 흙으로 교체)
+     */
+    public void removeAllBeaconStructures() {
+        for (Map.Entry<String, Location> entry : beaconLocations.entrySet()) {
+            String zoneName = entry.getKey();
+            Location beaconLoc = entry.getValue();
+            
+            if (beaconLoc != null) {
+                World world = beaconLoc.getWorld();
+                if (world != null) {
+                    // 신호기 제거 (흙으로 교체)
+                    beaconLoc.getBlock().setType(Material.DIRT);
+                    
+                    // 색유리 제거 (흙으로 교체)
+                    Location glassLoc = beaconLoc.clone().add(0, 1, 0);
+                    glassLoc.getBlock().setType(Material.DIRT);
+                    
+                    // 철블럭 기초 제거 (흙으로 교체) - 3x3
+                    for (int x = -1; x <= 1; x++) {
+                        for (int z = -1; z <= 1; z++) {
+                            Location baseLoc = beaconLoc.clone().add(x, -1, z);
+                            baseLoc.getBlock().setType(Material.DIRT);
+                        }
+                    }
+                    
+                    plugin.getLogger().info(zoneName + " 점령지의 신호기 구조를 제거했습니다.");
+                }
+            }
+        }
+        
+        // 신호기 위치 정보 초기화
+        beaconLocations.clear();
+        plugin.getLogger().info("모든 신호기 구조가 제거되었습니다.");
+    }
 }
