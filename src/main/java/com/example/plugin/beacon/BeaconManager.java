@@ -112,12 +112,13 @@ public class BeaconManager {
         World world = center.getWorld();
         if (world == null) return;
 
-        // 사용자 위치 기준 Y좌표 사용 (사용자 Y - 1)
+        // 사용자 위치 기준 Y좌표 사용 (한 칸 더 아래)
         int playerY = player.getLocation().getBlockY();
-        int beaconY = playerY - 1;
-        int baseY = playerY - 2;
+        int beaconY = playerY - 2;  // 신호기: 사용자 Y - 2
+        int baseY = playerY - 3;    // 철블럭 기초: 사용자 Y - 3
+        int glassY = playerY - 1;   // 색유리: 사용자 Y - 1
 
-        // 신호기 기반 구조 생성 (3x3 철 블록) - 사용자 Y - 2
+        // 신호기 기반 구조 생성 (3x3 철 블록) - 사용자 Y - 3
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 Location blockLocation = center.clone().add(x, baseY - center.getBlockY(), z);
@@ -125,13 +126,13 @@ public class BeaconManager {
             }
         }
 
-        // 신호기 배치 - 사용자 Y - 1
+        // 신호기 배치 - 사용자 Y - 2
         Location beaconLocation = center.clone().add(0, beaconY - center.getBlockY(), 0);
         beaconLocation.getBlock().setType(Material.BEACON);
         beaconLocations.put(zone.getName(), beaconLocation);
 
-        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y
-        Location glassLocation = center.clone().add(0, playerY - center.getBlockY(), 0);
+        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y - 1
+        Location glassLocation = center.clone().add(0, glassY - center.getBlockY(), 0);
         Material glassType = getZoneGlassType(zone.getType());
         glassLocation.getBlock().setType(glassType);
 
