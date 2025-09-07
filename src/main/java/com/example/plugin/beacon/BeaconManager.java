@@ -130,9 +130,10 @@ public class BeaconManager {
         beaconLocation.getBlock().setType(Material.BEACON);
         beaconLocations.put(zone.getName(), beaconLocation);
 
-        // 색유리 위치 준비 (공기로) - 사용자 Y
+        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y
         Location glassLocation = center.clone().add(0, playerY - center.getBlockY(), 0);
-        glassLocation.getBlock().setType(Material.AIR);
+        Material glassType = getZoneGlassType(zone.getType());
+        glassLocation.getBlock().setType(glassType);
 
         plugin.getLogger().info(zone.getName() + " 점령지에 신호기 구조를 생성했습니다! (Y=" + beaconY + ")");
     }
@@ -164,6 +165,28 @@ public class BeaconManager {
      */
     public Material getTeamGlassType(ChatColor color) {
         return teamColors.getOrDefault(color, Material.WHITE_STAINED_GLASS);
+    }
+
+    /**
+     * 점령지 타입에 맞는 색유리 타입 반환
+     * @param zoneType 점령지 타입
+     * @return 색유리 타입
+     */
+    public Material getZoneGlassType(com.example.plugin.capture.CaptureZone.ZoneType zoneType) {
+        switch (zoneType) {
+            case CENTER:
+                return Material.YELLOW_STAINED_GLASS; // 중앙: 노란색
+            case FIRE:
+                return Material.RED_STAINED_GLASS; // 불: 빨간색
+            case WIND:
+                return Material.LIGHT_BLUE_STAINED_GLASS; // 바람: 하늘색
+            case WATER:
+                return Material.BLUE_STAINED_GLASS; // 물: 파란색
+            case ICE:
+                return Material.LIGHT_GRAY_STAINED_GLASS; // 얼음: 회백색
+            default:
+                return Material.WHITE_STAINED_GLASS; // 기본값: 흰색
+        }
     }
 
     /**

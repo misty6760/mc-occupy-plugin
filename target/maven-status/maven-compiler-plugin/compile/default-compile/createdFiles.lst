@@ -1,4 +1,5 @@
 com\example\plugin\MinecraftPlugin.class
+com\example\plugin\beacon\BeaconManager$1.class
 com\example\plugin\capture\CaptureManager$1.class
 com\example\plugin\tpa\TPARequest.class
 com\example\plugin\commands\InfoCommand.class
