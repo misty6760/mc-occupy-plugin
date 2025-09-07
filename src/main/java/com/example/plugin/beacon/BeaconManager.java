@@ -180,11 +180,11 @@ public class BeaconManager {
             case FIRE:
                 return Material.RED_STAINED_GLASS; // 불: 빨간색
             case WIND:
-                return Material.LIGHT_BLUE_STAINED_GLASS; // 바람: 하늘색
+                return Material.LIGHT_GRAY_STAINED_GLASS; // 바람: 회백색
             case WATER:
                 return Material.BLUE_STAINED_GLASS; // 물: 파란색
             case ICE:
-                return Material.LIGHT_GRAY_STAINED_GLASS; // 얼음: 회백색
+                return Material.LIGHT_BLUE_STAINED_GLASS; // 얼음: 하늘색
             default:
                 return Material.WHITE_STAINED_GLASS; // 기본값: 흰색
         }

@@ -52,7 +52,11 @@ public class GameCommand implements CommandExecutor, TabCompleter {
 
         switch (subCommand) {
             case "start":
-                startGame(player);
+                if (args.length > 1 && args[1].equalsIgnoreCase("test")) {
+                    startGameTest(player);
+                } else {
+                    startGame(player);
+                }
                 break;
             case "stop":
                 stopGame(player);
@@ -87,6 +91,7 @@ public class GameCommand implements CommandExecutor, TabCompleter {
         
         player.sendMessage(ChatColor.AQUA + "기본 명령어:");
         player.sendMessage(ChatColor.YELLOW + "  /game start" + ChatColor.WHITE + " - 게임 시작 (최소 6명 필요)");
+        player.sendMessage(ChatColor.YELLOW + "  /game start test" + ChatColor.WHITE + " - 테스트 모드 게임 시작 (한 명도 가능)");
         player.sendMessage(ChatColor.YELLOW + "  /game stop" + ChatColor.WHITE + " - 게임 중단");
         player.sendMessage(ChatColor.YELLOW + "  /game status" + ChatColor.WHITE + " - 게임 상태 및 점수 확인");
         player.sendMessage(ChatColor.YELLOW + "  /game reset" + ChatColor.WHITE + " - 게임 초기화");
@@ -152,6 +157,22 @@ public class GameCommand implements CommandExecutor, TabCompleter {
 
         captureManager.startGame();
         player.sendMessage(ChatColor.GREEN + "땅따먹기 게임이 시작되었습니다!");
+    }
+
+    /**
+     * 테스트 모드 게임 시작 (한 명이어도 가능)
+     * @param player 명령어 실행자
+     */
+    private void startGameTest(Player player) {
+        if (captureManager.isGameActive()) {
+            player.sendMessage(ChatColor.RED + "게임이 이미 진행 중입니다!");
+            return;
+        }
+
+        // 테스트 모드에서는 최소 인원 제한 없음
+        captureManager.startGame();
+        player.sendMessage(ChatColor.GREEN + "땅따먹기 게임이 테스트 모드로 시작되었습니다!");
+        player.sendMessage(ChatColor.YELLOW + "테스트 모드: 최소 인원 제한이 없습니다.");
     }
 
     /**
@@ -271,6 +292,11 @@ public class GameCommand implements CommandExecutor, TabCompleter {
                 if (cmd.toLowerCase().startsWith(args[0].toLowerCase())) {
                     completions.add(cmd);
                 }
+            }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
+            // /game start의 두 번째 인수
+            if ("test".startsWith(args[1].toLowerCase())) {
+                completions.add("test");
             }
         }
         
