@@ -1,0 +1,144 @@
+name: LandCapturePlugin
+version: 1.0.0
+main: com.example.plugin.MinecraftPlugin
+api-version: 1.16
+description: 땅따먹기 게임 플러그인 for Paper 1.16.5
+author: YourName
+website: https://example.com
+
+commands:
+   # 팀 관련 명령어
+   team:
+      description: 팀 정보를 확인합니다
+      usage: /team [팀이름]
+      permission: landcapture.team.info
+      aliases: [t]
+
+   join:
+      description: 팀에 가입합니다
+      usage: /join <팀이름>
+      permission: landcapture.team.join
+      aliases: [j]
+
+   leave:
+      description: 현재 팀에서 탈퇴합니다
+      usage: /leave
+      permission: landcapture.team.leave
+      aliases: [l]
+
+   # 게임 관련 명령어
+   game:
+      description: 게임을 관리합니다
+      usage: /game <start|stop|status|reset>
+      permission: landcapture.game.manage
+      aliases: [g]
+
+   capture:
+      description: 점령지 정보를 확인합니다
+      usage: /capture [점령지이름]
+      permission: landcapture.capture.info
+      aliases: [c]
+
+   # 교환 관련 명령어
+   exchange:
+      description: 교환 시스템을 사용합니다
+      usage: /exchange [info|help]
+      permission: landcapture.exchange.use
+      aliases: [ex, trade]
+
+   # TPA 관련 명령어
+   tpa:
+      description: 팀원에게 TPA 요청을 보냅니다
+      usage: /tpa <플레이어>
+      permission: landcapture.tpa.use
+      aliases: [tpask]
+
+   tpaccept:
+      description: TPA 요청을 수락합니다
+      usage: /tpaccept
+      permission: landcapture.tpa.use
+      aliases: [tpyes, tpy]
+
+   tpdeny:
+      description: TPA 요청을 거부합니다
+      usage: /tpdeny
+      permission: landcapture.tpa.use
+      aliases: [tpno, tpn]
+
+   tpcancel:
+      description: TPA 요청을 취소합니다
+      usage: /tpcancel
+      permission: landcapture.tpa.use
+      aliases: [tpc]
+
+   tpastatus:
+      description: TPA 상태를 확인합니다
+      usage: /tpastatus
+      permission: landcapture.tpa.use
+      aliases: [tps]
+
+   # 신호기 관련 명령어
+   beacon:
+      description: 신호기 구조를 관리합니다
+      usage: /beacon [create|reset|help]
+      permission: landcapture.admin
+      aliases: [b]
+
+   # 정보 명령어
+   info:
+      description: 게임 정보를 확인합니다
+      usage: /info [team|capture|game|help]
+      permission: landcapture.info.view
+      aliases: [i]
+
+permissions:
+   # 팀 관련 권한
+   landcapture.team.info:
+      description: 팀 정보를 볼 수 있습니다
+      default: true
+
+   landcapture.team.join:
+      description: 팀에 가입할 수 있습니다
+      default: true
+
+   landcapture.team.leave:
+      description: 팀에서 탈퇴할 수 있습니다
+      default: true
+
+   # 게임 관련 권한
+   landcapture.game.manage:
+      description: 게임을 시작/중단할 수 있습니다
+      default: op
+
+   landcapture.capture.info:
+      description: 점령지 정보를 볼 수 있습니다
+      default: true
+
+   # 교환 관련 권한
+   landcapture.exchange.use:
+      description: 교환 시스템을 사용할 수 있습니다
+      default: true
+
+   # TPA 관련 권한
+   landcapture.tpa.use:
+      description: TPA 시스템을 사용할 수 있습니다
+      default: true
+
+   # 정보 관련 권한
+   landcapture.info.view:
+      description: 게임 정보를 볼 수 있습니다
+      default: true
+
+   # 관리자 권한
+   landcapture.admin:
+      description: 모든 플러그인 기능을 사용할 수 있습니다
+      default: op
+      children:
+         - landcapture.team.info
+         - landcapture.team.join
+         - landcapture.team.leave
+         - landcapture.game.manage
+         - landcapture.capture.info
+         - landcapture.exchange.use
+         - landcapture.tpa.use
+         - landcapture.info.view
