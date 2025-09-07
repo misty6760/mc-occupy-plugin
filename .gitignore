@@ -1,0 +1,183 @@
+# Maven 빌드 결과물
+target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 플러그인 빌드 결과물 (명시적 제외)
+minecraft-plugin-*.jar
+target/minecraft-plugin-*.jar
+
+# IDE 관련 파일들
+## IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+## Eclipse
+.project
+.classpath
+.settings/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.factorypath
+
+## VS Code
+.vscode/
+*.code-workspace
+
+## NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# 로그 파일들
+*.log
+logs/
+log/
+
+# 임시 파일들
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# OS 관련 파일들
+## Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+## Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# 환경 설정 파일들
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+config.properties
+application.properties
+database.properties
+
+# 계획서 및 문서 파일들
+planning/
+plans/
+documents/
+docs/
+*.doc
+*.docx
+*.pdf
+*.txt
+*.md
+README.md
+CHANGELOG.md
+TODO.md
+NOTES.md
+IDEAS.md
+DESIGN.md
+ARCHITECTURE.md
+
+# 서버 관련 파일들
+server/
+servers/
+world/
+world_nether/
+world_the_end/
+plugins/
+logs/
+crash-reports/
+usercache.json
+usernamecache.json
+banned-players.json
+banned-ips.json
+ops.json
+whitelist.json
+server.properties
+bukkit.yml
+spigot.yml
+paper.yml
+paperspigot.yml
+
+# 플러그인 개발 관련
+# (빌드된 JAR 파일은 제외하되, 소스 코드는 포함)
+# 위에서 이미 명시적으로 제외됨
+
+# 테스트 관련
+test-results/
+test-output/
+coverage/
+
+# 백업 파일들
+*.backup
+*.bak
+*.old
+backup/
+backups/
+
+# 캐시 파일들
+.cache/
+cache/
+*.cache
+
+# 압축 파일들
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# 데이터베이스 파일들
+*.db
+*.sqlite
+*.sqlite3
+
+# 기타
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
