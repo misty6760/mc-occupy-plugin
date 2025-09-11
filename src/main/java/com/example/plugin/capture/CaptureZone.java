@@ -177,6 +177,26 @@ public class CaptureZone {
     }
 
     /**
+     * 남은 점령 시간 반환 (초)
+     * @return 남은 점령 시간
+     */
+    public int getRemainingCaptureTime() {
+        if (!isCapturing) return 0;
+        return maxProgress - captureProgress;
+    }
+
+    /**
+     * 남은 점령 시간을 분:초 형식으로 반환
+     * @return 남은 점령 시간 (MM:SS)
+     */
+    public String getRemainingCaptureTimeFormatted() {
+        int remaining = getRemainingCaptureTime();
+        int minutes = remaining / 60;
+        int seconds = remaining % 60;
+        return String.format("%d:%02d", minutes, seconds);
+    }
+
+    /**
      * 점령 중인지 확인
      * @return 점령 중 여부
      */

@@ -8,10 +8,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -26,12 +32,16 @@ public class CaptureManager {
     private boolean gameActive = false;
     private ZoneEffectManager effectManager;
     private BeaconManager beaconManager;
+    private File zonesFile;
+    private FileConfiguration zonesConfig;
+    private BossBar centerBossBar;
 
     public CaptureManager(JavaPlugin plugin, TeamManager teamManager) {
         this.plugin = plugin;
         this.teamManager = teamManager;
         this.captureZones = new HashMap<>();
         this.captureTasks = new HashMap<>();
+        this.centerBossBar = Bukkit.createBossBar("중앙 점령지", BarColor.YELLOW, BarStyle.SOLID);
         initializeCaptureZones();
     }
 
@@ -53,11 +63,51 @@ public class CaptureManager {
 
     /**
      * 점령지들을 초기화
+     * 설정 파일에서 점령지 정보를 로드
      */
     private void initializeCaptureZones() {
-        // 테스트용 점령지들 (0,0 중심 20x20 정사각형 내에 5x5 점령지들)
-        // 꼭짓점에서 2칸 안쪽에 배치하여 맵 경계를 벗어나지 않도록 함
+        loadZonesConfig();
+        
+        if (zonesConfig == null) {
+            plugin.getLogger().warning("점령지 설정 파일을 로드할 수 없습니다. 기본 설정을 사용합니다.");
+            initializeDefaultZones();
+            return;
+        }
+        
+        // 설정 파일에서 점령지 정보 로드
+        for (String zoneName : zonesConfig.getConfigurationSection("zones").getKeys(false)) {
+            String path = "zones." + zoneName;
+            
+            String worldName = zonesConfig.getString(path + ".world", "world");
+            int x = zonesConfig.getInt(path + ".x", 0);
+            int y = zonesConfig.getInt(path + ".y", 64);
+            int z = zonesConfig.getInt(path + ".z", 0);
+            double radius = zonesConfig.getDouble(path + ".radius", 2.5);
+            String typeStr = zonesConfig.getString(path + ".type", "CENTER");
+            
+            World world = Bukkit.getWorld(worldName);
+            if (world == null) {
+                plugin.getLogger().warning("월드 '" + worldName + "'을 찾을 수 없습니다. 기본 월드를 사용합니다.");
+                world = Bukkit.getWorlds().get(0);
+            }
+            
+            CaptureZone.ZoneType type;
+            try {
+                type = CaptureZone.ZoneType.valueOf(typeStr);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().warning("잘못된 점령지 타입: " + typeStr + ". CENTER로 설정합니다.");
+                type = CaptureZone.ZoneType.CENTER;
+            }
+            
+            createCaptureZone(zoneName, type, new Location(world, x, y, z), radius);
+            plugin.getLogger().info("점령지 로드: " + zoneName + " (" + typeStr + ") at " + x + ", " + y + ", " + z);
+        }
+    }
     
+    /**
+     * 기본 점령지 설정 (설정 파일이 없을 때 사용)
+     */
+    private void initializeDefaultZones() {
         World world = Bukkit.getWorlds().get(0);
         
         // 중앙 점령지 (5x5) - (0, 0)
@@ -79,6 +129,19 @@ public class CaptureManager {
         // 북동쪽 - 얼음 (8, -8) - 꼭짓점에서 2칸 안쪽
         createCaptureZone("ice", CaptureZone.ZoneType.ICE, 
             new Location(world, 8, 64, -8), 2.5);
+    }
+    
+    /**
+     * 점령지 설정 파일 로드
+     */
+    private void loadZonesConfig() {
+        zonesFile = new File(plugin.getDataFolder(), "zones.yml");
+        
+        if (!zonesFile.exists()) {
+            plugin.saveResource("zones.yml", false);
+        }
+        
+        zonesConfig = YamlConfiguration.loadConfiguration(zonesFile);
     }
 
     /**
@@ -109,6 +172,12 @@ public class CaptureManager {
     public void stopGame() {
         gameActive = false;
         stopAllCaptureTasks();
+        
+        // 보스바 정리
+        if (centerBossBar != null) {
+            centerBossBar.removeAll();
+        }
+        
         broadcastMessage(ChatColor.RED + "땅따먹기 게임이 종료되었습니다!");
     }
 
@@ -202,8 +271,12 @@ public class CaptureManager {
         } else if (teamCounts.size() > 1) {
             // 여러 팀이 구역에 있음 - 점령 중단
             if (zone.isCapturing()) {
+                String capturingTeam = zone.getCapturingTeam();
                 zone.stopCapture();
                 broadcastCaptureInterrupted(zone);
+                
+                // 점령 중이던 팀에게 "점령지 뺏기는 중" 메시지 전송
+                broadcastZoneBeingCaptured(zone, capturingTeam);
             }
         } else {
             // 아무도 구역에 없음 - 점령 중단
@@ -293,8 +366,8 @@ public class CaptureManager {
             }
         }
         
-        // 기본 점령지 2개 이상 점령 시 중앙 점령 불가
-        return basicZonesCaptured < 2;
+        // 기본 점령지 3개 이상 점령 시 중앙 점령 불가
+        return basicZonesCaptured < 3;
     }
 
     /**
@@ -345,30 +418,148 @@ public class CaptureManager {
     }
 
     /**
-     * 액션바 업데이트
+     * 액션바 및 보스바 업데이트
      */
     @SuppressWarnings("deprecation")
     private void updateActionBar() {
-        StringBuilder status = new StringBuilder();
-        status.append(ChatColor.GOLD).append("=== 점령 현황 === ");
-        
-        for (CaptureZone zone : captureZones.values()) {
-            status.append(zone.getType().getDisplayName()).append(": ");
-            if (zone.isCaptured()) {
-                status.append(zone.getCurrentTeam());
-            } else if (zone.isCapturing()) {
-                status.append(zone.getCapturingTeam()).append("(").append(zone.getCaptureProgressPercent()).append("%)");
-            } else {
-                status.append("없음");
+        // 각 플레이어별로 액션바 표시 (기본 점령지 점령 상태만)
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            String teamName = teamManager.getPlayerTeamName(player);
+            if (teamName == null) continue;
+            
+            // 기본 점령지들만 액션바에 표시 (플레이어가 있는 점령지)
+            for (CaptureZone zone : captureZones.values()) {
+                if (zone.getType() == CaptureZone.ZoneType.CENTER) continue; // 중앙은 제외
+                
+                if (zone.isPlayerInZone(player)) {
+                    // 점령지 내 팀 수 확인
+                    int teamCount = getTeamCountInZone(zone);
+                    
+                    if (zone.isCaptured()) {
+                        // 점령된 상태
+                        if (teamName.equals(zone.getCurrentTeam())) {
+                            player.sendActionBar(ChatColor.GREEN + zone.getType().getDisplayName() + ": 점령됨!");
+                        } else {
+                            player.sendActionBar(ChatColor.RED + zone.getType().getDisplayName() + ": " + zone.getCurrentTeam() + " 점령");
+                        }
+                    } else if (zone.isCapturing()) {
+                        if (teamCount == 1) {
+                            // 하나의 팀만 있을 때 (고착 상태 X) - 초록색으로 퍼센트 및 남은 시간 표시
+                            if (teamName.equals(zone.getCapturingTeam())) {
+                                player.sendActionBar(ChatColor.GREEN + zone.getType().getDisplayName() + ": " + zone.getCaptureProgressPercent()
+                                      + "% (" + zone.getRemainingCaptureTimeFormatted() + ")");
+                            } else {
+                                player.sendActionBar(ChatColor.GRAY + zone.getType().getDisplayName() + ": " + zone.getCapturingTeam() + " 점령 중");
+                            }
+                        } else {
+                            // 2개 이상의 팀이 있을 때 (고착 상태 O) - 노란색으로 퍼센트 표시, 시간 정지
+                            if (teamName.equals(zone.getCapturingTeam())) {
+                                player.sendActionBar(ChatColor.YELLOW + zone.getType().getDisplayName() + ": " + zone.getCaptureProgressPercent() + "% (정지)");
+                            } else {
+                                player.sendActionBar(ChatColor.GRAY + zone.getType().getDisplayName() + ": " + zone.getCapturingTeam() + " 점령 중 (정지)");
+                            }
+                        }
+                    } else {
+                        player.sendActionBar(ChatColor.WHITE + zone.getType().getDisplayName() + ": 미점령");
+                    }
+                    break; // 하나의 점령지에만 있을 수 있으므로 첫 번째 점령지만 표시
+                }
             }
-            status.append(" ");
         }
         
-        // 모든 온라인 플레이어에게 액션바 전송
+        // 중앙 점령지는 모든 플레이어에게 보스바로 표시
+        updateCenterZoneBossBar();
+        
+        // 스코어보드 업데이트
+        updateScoreboard();
+    }
+    
+    /**
+     * 점령지 내 팀 수 확인
+     */
+    private int getTeamCountInZone(CaptureZone zone) {
+        Set<String> teamsInZone = new HashSet<>();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            // Paper API 1.16.5에서는 sendActionBar가 deprecated이지만 여전히 작동
-            // @SuppressWarnings("deprecation")을 사용하여 경고 억제
-            player.sendActionBar(status.toString());
+            if (zone.isPlayerInZone(player)) {
+                String teamName = teamManager.getPlayerTeamName(player);
+                if (teamName != null) {
+                    teamsInZone.add(teamName);
+                }
+            }
+        }
+        return teamsInZone.size();
+    }
+    
+    /**
+     * 중앙 점령지 보스바 업데이트
+     */
+    private void updateCenterZoneBossBar() {
+        CaptureZone centerZone = captureZones.get("center");
+        if (centerZone == null) return;
+        
+        StringBuilder bossBarText = new StringBuilder();
+        bossBarText.append("중앙 점령지: ");
+        
+        if (centerZone.isCaptured()) {
+            bossBarText.append(centerZone.getCurrentTeam()).append(" 점령");
+            centerBossBar.setColor(BarColor.GREEN);
+        } else if (centerZone.isCapturing()) {
+            bossBarText.append(centerZone.getCapturingTeam())
+                      .append(" 점령 중 (").append(centerZone.getCaptureProgressPercent()).append("%) - ")
+                      .append(centerZone.getRemainingCaptureTimeFormatted());
+            centerBossBar.setColor(BarColor.YELLOW);
+            centerBossBar.setProgress(centerZone.getCaptureProgress());
+        } else {
+            bossBarText.append("미점령");
+            centerBossBar.setColor(BarColor.WHITE);
+            centerBossBar.setProgress(0.0);
+        }
+        
+        centerBossBar.setTitle(bossBarText.toString());
+        
+        // 모든 플레이어에게 보스바 표시
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!centerBossBar.getPlayers().contains(player)) {
+                centerBossBar.addPlayer(player);
+            }
+        }
+    }
+    
+    /**
+     * 스코어보드 업데이트
+     */
+    @SuppressWarnings("deprecation")
+    private void updateScoreboard() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            String teamName = teamManager.getPlayerTeamName(player);
+            if (teamName == null) continue;
+            
+            StringBuilder scoreboard = new StringBuilder();
+            scoreboard.append(ChatColor.GOLD).append("=== 팀 점수 ===\n");
+            
+            // 모든 팀의 점수 표시
+            for (Team team : teamManager.getAllTeams()) {
+                ChatColor teamColor = getTeamColor(team.getName());
+                scoreboard.append(teamColor).append(team.getName()).append(": ")
+                         .append(ChatColor.WHITE).append(team.getScore()).append("점\n");
+            }
+            
+            // 플레이어의 액션바에 스코어보드 표시 (임시로 액션바 사용)
+            player.sendActionBar(scoreboard.toString());
+        }
+    }
+    
+    
+    /**
+     * 팀별 색상 반환
+     */
+    private ChatColor getTeamColor(String teamName) {
+        switch (teamName.toLowerCase()) {
+            case "빨강": return ChatColor.RED;
+            case "파랑": return ChatColor.BLUE;
+            case "초록": return ChatColor.GREEN;
+            case "노랑": return ChatColor.YELLOW;
+            default: return ChatColor.WHITE;
         }
     }
 
@@ -401,15 +592,60 @@ public class CaptureManager {
     }
 
     /**
+     * 점령지 뺏기는 중 알림
+     */
+    private void broadcastZoneBeingCaptured(CaptureZone zone, String teamName) {
+        String message = ChatColor.RED + "경고! " + zone.getType().getDisplayName() + "이 다른 팀에게 뺏기고 있습니다!";
+        
+        // 점령 중이던 팀에게만 메시지 전송
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            String playerTeam = teamManager.getPlayerTeamName(player);
+            if (teamName.equals(playerTeam)) {
+                player.sendMessage(message);
+                player.sendTitle(ChatColor.RED + "점령지 뺏기는 중!", 
+                               ChatColor.RED + zone.getType().getDisplayName() + "을 지키세요!", 10, 60, 10);
+            }
+        }
+    }
+
+    /**
      * 점령 완료 알림
      */
     private void broadcastCaptureComplete(CaptureZone zone, String teamName) {
-        String message = ChatColor.GREEN + teamName + " 팀이 " + zone.getType().getDisplayName() + "을 점령했습니다!";
-        broadcastMessage(message);
+        // 중앙 점령지만 모든 플레이어에게 알림
+        if (zone.getType() == CaptureZone.ZoneType.CENTER) {
+            String message = ChatColor.GREEN + teamName + " 팀이 " + zone.getType().getDisplayName() + "을 점령했습니다!";
+            broadcastMessage(message);
+            
+            // 타이틀로도 알림
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendTitle("", message, 10, 40, 10);
+            }
+        }
         
-        // 타이틀로도 알림
+        // 점령한 팀에게만 특별한 타이틀 표시
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendTitle("", message, 10, 40, 10);
+            String playerTeam = teamManager.getPlayerTeamName(player);
+            if (teamName.equals(playerTeam)) {
+                String zoneName = zone.getType().getDisplayName();
+                player.sendTitle(ChatColor.GREEN + zoneName + "지역 점령 완료!", 
+                               ChatColor.GREEN + "축하합니다!", 10, 60, 10);
+            }
+        }
+        
+        // 기존 점령 팀에게만 알림 (기존 점령 팀이 있었다면)
+        String previousTeam = zone.getCurrentTeam();
+        if (previousTeam != null && !previousTeam.equals(teamName)) {
+            String lostMessage = ChatColor.RED + "경고! " + zone.getType().getDisplayName() + "이 " + teamName + " 팀에게 점령되었습니다!";
+            
+            // 기존 점령 팀에게만 빨간색 알림
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                String playerTeam = teamManager.getPlayerTeamName(player);
+                if (previousTeam.equals(playerTeam)) {
+                    player.sendMessage(lostMessage);
+                    player.sendTitle(ChatColor.RED + "점령지 점령됨!", lostMessage, 10, 60, 10);
+                }
+            }
         }
     }
 

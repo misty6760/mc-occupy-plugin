@@ -77,12 +77,12 @@ commands:
       permission: landcapture.tpa.use
       aliases: [tps]
 
-   # 신호기 관련 명령어
-   beacon:
-      description: 신호기 구조를 관리합니다
-      usage: /beacon [create|reset|help]
+   # 점령지 설정 명령어
+   zone:
+      description: 점령지 위치를 설정합니다
+      usage: /zone [set|list|reload|help]
       permission: landcapture.admin
-      aliases: [b]
+      aliases: [z]
 
    # 정보 명령어
    info:

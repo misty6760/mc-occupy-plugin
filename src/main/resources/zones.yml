@@ -1,0 +1,43 @@
+# 점령지 위치 설정 파일
+# 이 파일을 수정하여 점령지 위치를 변경할 수 있습니다.
+
+zones:
+   center:
+      world: "world"
+      x: 0
+      y: 64
+      z: 0
+      radius: 2.5
+      type: "CENTER"
+
+   water:
+      world: "world"
+      x: -8
+      y: 64
+      z: -8
+      radius: 2.5
+      type: "WATER"
+
+   fire:
+      world: "world"
+      x: 8
+      y: 64
+      z: 8
+      radius: 2.5
+      type: "FIRE"
+
+   wind:
+      world: "world"
+      x: -8
+      y: 64
+      z: 8
+      radius: 2.5
+      type: "WIND"
+
+   ice:
+      world: "world"
+      x: 8
+      y: 64
+      z: -8
+      radius: 2.5
+      type: "ICE"

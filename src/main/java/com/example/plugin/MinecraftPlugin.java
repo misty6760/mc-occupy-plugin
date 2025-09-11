@@ -10,6 +10,8 @@ import com.example.plugin.commands.*;
 import com.example.plugin.listeners.PlayerListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+
 /**
  * 땅따먹기 게임 플러그인 메인 클래스
  * Paper 1.16.5용 마인크래프트 플러그인
@@ -170,10 +172,11 @@ public class MinecraftPlugin extends JavaPlugin {
         getCommand("tpcancel").setExecutor(tpaCommand);
         getCommand("tpastatus").setExecutor(tpaCommand);
         
-        // 신호기 관련 명령어
-        BeaconCommand beaconCommand = new BeaconCommand(beaconManager, captureManager);
-        getCommand("beacon").setExecutor(beaconCommand);
-        getCommand("beacon").setTabCompleter(beaconCommand);
+        // 점령지 설정 명령어
+        File zonesFile = new File(getDataFolder(), "zones.yml");
+        ZoneCommand zoneCommand = new ZoneCommand(captureManager, beaconManager, zonesFile);
+        getCommand("zone").setExecutor(zoneCommand);
+        getCommand("zone").setTabCompleter(zoneCommand);
         
         // 정보 명령어
         getCommand("info").setExecutor(new InfoCommand(teamManager, captureManager));
