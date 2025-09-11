@@ -303,7 +303,7 @@ public class CaptureManager {
     private void checkWinCondition() {
         for (Team team : teamManager.getAllTeams()) {
             if (checkTeamWinCondition(team)) {
-                broadcastMessage(ChatColor.GOLD + "🎉 " + team.getName() + " 팀이 승리했습니다! 🎉");
+                broadcastMessage(ChatColor.GOLD + team.getName() + " 팀이 승리했습니다!");
                 stopGame();
                 return;
             }
@@ -404,7 +404,7 @@ public class CaptureManager {
      * 점령 완료 알림
      */
     private void broadcastCaptureComplete(CaptureZone zone, String teamName) {
-        String message = ChatColor.GREEN + "🎉 " + teamName + " 팀이 " + zone.getType().getDisplayName() + "을 점령했습니다! 🎉";
+        String message = ChatColor.GREEN + teamName + " 팀이 " + zone.getType().getDisplayName() + "을 점령했습니다!";
         broadcastMessage(message);
         
         // 타이틀로도 알림

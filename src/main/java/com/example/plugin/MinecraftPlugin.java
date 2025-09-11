@@ -32,42 +32,42 @@ public class MinecraftPlugin extends JavaPlugin {
         long startTime = System.currentTimeMillis();
         
         getLogger().info("==========================================");
-        getLogger().info("🎮 땅따먹기 플러그인 활성화 시작...");
+        getLogger().info("땅따먹기 플러그인 활성화 시작...");
         getLogger().info("==========================================");
         
         try {
             instance = this;
-            getLogger().info("✅ 플러그인 인스턴스 초기화 완료");
+            getLogger().info("플러그인 인스턴스 초기화 완료");
             
             // 매니저들 초기화
             initializeManagers();
-            getLogger().info("✅ 매니저 시스템 초기화 완료");
+            getLogger().info("매니저 시스템 초기화 완료");
             
             // 명령어 등록
             registerCommands();
-            getLogger().info("✅ 명령어 시스템 등록 완료");
+            getLogger().info("명령어 시스템 등록 완료");
             
             // 이벤트 리스너 등록
             registerEventListeners();
-            getLogger().info("✅ 이벤트 리스너 등록 완료");
+            getLogger().info("이벤트 리스너 등록 완료");
             
             // 설정 파일 로드
             saveDefaultConfig();
-            getLogger().info("✅ 설정 파일 초기화 완료");
+            getLogger().info("설정 파일 초기화 완료");
             
             long endTime = System.currentTimeMillis();
             long loadTime = endTime - startTime;
             
             getLogger().info("==========================================");
-            getLogger().info("🎉 땅따먹기 플러그인 활성화 완료!");
-            getLogger().info("⏱️ 로드 시간: " + loadTime + "ms");
-            getLogger().info("📋 등록된 명령어: 12개");
-            getLogger().info("🗺️ 점령지: 6개 (테스트 맵)");
+            getLogger().info("땅따먹기 플러그인 활성화 완료!");
+            getLogger().info("로드 시간: " + loadTime + "ms");
+            getLogger().info("등록된 명령어: 12개");
+            getLogger().info("점령지: 6개 (테스트 맵)");
             getLogger().info("👥 최대 팀 수: 4개");
             getLogger().info("==========================================");
             
         } catch (Exception e) {
-            getLogger().severe("❌ 플러그인 활성화 중 오류 발생!");
+            getLogger().severe("플러그인 활성화 중 오류 발생!");
             getLogger().severe("오류 내용: " + e.getMessage());
             e.printStackTrace();
         }
@@ -83,36 +83,36 @@ public class MinecraftPlugin extends JavaPlugin {
             // 게임 중단
             if (captureManager != null) {
                 captureManager.stopGame();
-                getLogger().info("✅ 진행 중인 게임 중단 완료");
+                getLogger().info("진행 중인 게임 중단 완료");
             }
             
             // 모든 효과 중단
             if (effectManager != null) {
                 effectManager.stopAllEffects();
-                getLogger().info("✅ 모든 구역 효과 중단 완료");
+                getLogger().info("모든 구역 효과 중단 완료");
             }
             
             // TPA 요청 정리
             if (tpaManager != null) {
                 tpaManager.clearAllRequests();
-                getLogger().info("✅ 모든 TPA 요청 정리 완료");
+                getLogger().info("모든 TPA 요청 정리 완료");
             }
             
             // 신호기 색상 초기화
             if (beaconManager != null) {
                 beaconManager.resetAllBeaconColors();
-                getLogger().info("✅ 모든 신호기 색상 초기화 완료");
+                getLogger().info("모든 신호기 색상 초기화 완료");
             }
             
             getLogger().info("==========================================");
-            getLogger().info("✅ 땅따먹기 플러그인 비활성화 완료!");
+            getLogger().info("땅따먹기 플러그인 비활성화 완료!");
             getLogger().info("📊 플러그인 통계:");
             getLogger().info("  - 총 실행 시간: " + getDescription().getVersion());
             getLogger().info("  - 메모리 사용량: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
             getLogger().info("==========================================");
             
         } catch (Exception e) {
-            getLogger().severe("❌ 플러그인 비활성화 중 오류 발생!");
+            getLogger().severe("플러그인 비활성화 중 오류 발생!");
             getLogger().severe("오류 내용: " + e.getMessage());
             e.printStackTrace();
         }

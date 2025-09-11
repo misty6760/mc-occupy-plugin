@@ -75,7 +75,7 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
         }
 
         beaconManager.createAllBeaconStructures(captureManager.getAllCaptureZones(), player);
-        player.sendMessage(ChatColor.GREEN + "✅ 모든 점령지에 신호기 구조를 생성했습니다!");
+        player.sendMessage(ChatColor.GREEN + "모든 점령지에 신호기 구조를 생성했습니다!");
         player.sendMessage(ChatColor.YELLOW + "각 점령지 중심에 신호기가 배치되었습니다. (Y=" + (player.getLocation().getBlockY() - 2) + ")");
         player.sendMessage(ChatColor.AQUA + "점령지별 색유리: 중앙(노란색), 불(빨간색), 바람(하늘색), 물(파란색), 얼음(회백색)");
     }
@@ -91,7 +91,7 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
         }
 
         beaconManager.resetAllBeaconColors();
-        player.sendMessage(ChatColor.GREEN + "✅ 모든 신호기 색상을 초기화했습니다!");
+        player.sendMessage(ChatColor.GREEN + "모든 신호기 색상을 초기화했습니다!");
     }
 
     /**
@@ -105,7 +105,7 @@ public class BeaconCommand implements CommandExecutor, TabCompleter {
         }
 
         beaconManager.removeAllBeaconStructures();
-        player.sendMessage(ChatColor.GREEN + "✅ 모든 신호기 구조를 제거했습니다!");
+        player.sendMessage(ChatColor.GREEN + "모든 신호기 구조를 제거했습니다!");
         player.sendMessage(ChatColor.YELLOW + "신호기, 철블럭, 색유리가 모두 흙으로 교체되었습니다.");
     }
 

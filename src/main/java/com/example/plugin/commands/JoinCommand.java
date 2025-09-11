@@ -68,7 +68,7 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
 
         // 팀에 가입
         if (teamManager.assignPlayerToTeam(player, teamName)) {
-            player.sendMessage(ChatColor.GREEN + "✅ " + teamName + " 팀에 가입했습니다!");
+            player.sendMessage(ChatColor.GREEN + teamName + " 팀에 가입했습니다!");
             player.sendMessage(ChatColor.YELLOW + "팀 색상: " + team.getColor() + "■");
             
             // 팀원들에게 알림

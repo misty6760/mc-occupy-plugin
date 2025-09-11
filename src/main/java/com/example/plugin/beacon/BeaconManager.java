@@ -191,19 +191,52 @@ public class BeaconManager {
     }
 
     /**
-     * 모든 신호기 색상 초기화
+     * 모든 신호기 색상 초기화 (원래 점령지 색유리로 복원)
      */
     public void resetAllBeaconColors() {
-        for (Location beaconLoc : beaconLocations.values()) {
+        for (Map.Entry<String, Location> entry : beaconLocations.entrySet()) {
+            String zoneName = entry.getKey();
+            Location beaconLoc = entry.getValue();
+            
             if (beaconLoc != null) {
                 World world = beaconLoc.getWorld();
                 if (world != null) {
                     Block glassBlock = world.getBlockAt(beaconLoc.clone().add(0, 1, 0));
-                    glassBlock.setType(Material.WHITE_STAINED_GLASS);
+                    
+                    // 점령지 이름에 따라 원래 색유리로 복원
+                    Material originalGlassType = getOriginalZoneGlassType(zoneName);
+                    glassBlock.setType(originalGlassType);
                 }
             }
         }
-        plugin.getLogger().info("모든 신호기 색상이 초기화되었습니다.");
+        plugin.getLogger().info("모든 신호기 색상이 원래 점령지 색유리로 복원되었습니다.");
+    }
+
+    /**
+     * 점령지 이름에 따른 원래 색유리 타입 반환
+     * @param zoneName 점령지 이름
+     * @return 원래 색유리 타입
+     */
+    private Material getOriginalZoneGlassType(String zoneName) {
+        switch (zoneName.toLowerCase()) {
+            case "center":
+            case "중앙":
+                return Material.YELLOW_STAINED_GLASS; // 중앙: 노란색
+            case "fire":
+            case "불":
+                return Material.RED_STAINED_GLASS; // 불: 빨간색
+            case "wind":
+            case "바람":
+                return Material.LIGHT_GRAY_STAINED_GLASS; // 바람: 회백색
+            case "water":
+            case "물":
+                return Material.BLUE_STAINED_GLASS; // 물: 파란색
+            case "ice":
+            case "얼음":
+                return Material.LIGHT_BLUE_STAINED_GLASS; // 얼음: 하늘색
+            default:
+                return Material.WHITE_STAINED_GLASS; // 기본값: 흰색
+        }
     }
 
     /**

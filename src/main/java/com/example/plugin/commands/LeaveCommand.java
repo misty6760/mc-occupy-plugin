@@ -42,7 +42,7 @@ public class LeaveCommand implements CommandExecutor {
         
         // 팀에서 탈퇴
         if (teamManager.removePlayerFromTeam(player)) {
-            player.sendMessage(ChatColor.GREEN + "✅ " + currentTeam + " 팀에서 탈퇴했습니다!");
+            player.sendMessage(ChatColor.GREEN + currentTeam + " 팀에서 탈퇴했습니다!");
         } else {
             player.sendMessage(ChatColor.RED + "팀 탈퇴에 실패했습니다!");
         }

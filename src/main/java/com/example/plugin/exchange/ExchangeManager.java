@@ -148,7 +148,7 @@ public class ExchangeManager {
         inventory.addItem(exchangeItem);
         
         // 성공 메시지
-        player.sendMessage(ChatColor.GREEN + "✅ 교환 완료!");
+        player.sendMessage(ChatColor.GREEN + "교환 완료!");
         player.sendMessage(ChatColor.YELLOW + exchangeType.getInputName() + " → " + exchangeType.getOutputName());
         
         // 효과음 재생

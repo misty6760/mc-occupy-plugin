@@ -94,7 +94,7 @@ public class TPAManager {
         cooldowns.put(requesterId, System.currentTimeMillis());
 
         // 메시지 전송
-        requester.sendMessage(ChatColor.GREEN + "✅ " + target.getName() + "님에게 TPA 요청을 보냈습니다!");
+        requester.sendMessage(ChatColor.GREEN + target.getName() + "님에게 TPA 요청을 보냈습니다!");
         target.sendMessage(ChatColor.YELLOW + "📨 " + requester.getName() + "님이 TPA 요청을 보냈습니다!");
         target.sendMessage(ChatColor.GRAY + "수락: /tpaccept | 거부: /tpdeny");
 
@@ -157,8 +157,8 @@ public class TPAManager {
         requests.remove(request.getRequesterId());
 
         // 메시지 전송
-        requester.sendMessage(ChatColor.GREEN + "✅ " + target.getName() + "님이 TPA 요청을 수락했습니다!");
-        target.sendMessage(ChatColor.GREEN + "✅ " + requester.getName() + "님의 TPA 요청을 수락했습니다!");
+        requester.sendMessage(ChatColor.GREEN + target.getName() + "님이 TPA 요청을 수락했습니다!");
+        target.sendMessage(ChatColor.GREEN + requester.getName() + "님의 TPA 요청을 수락했습니다!");
 
         // 효과음 재생
         requester.playSound(requester.getLocation(), org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
@@ -196,9 +196,9 @@ public class TPAManager {
         requests.remove(request.getRequesterId());
 
         // 메시지 전송
-        target.sendMessage(ChatColor.RED + "❌ TPA 요청을 거부했습니다!");
+        target.sendMessage(ChatColor.RED + "TPA 요청을 거부했습니다!");
         if (requester != null && requester.isOnline()) {
-            requester.sendMessage(ChatColor.RED + "❌ " + target.getName() + "님이 TPA 요청을 거부했습니다!");
+            requester.sendMessage(ChatColor.RED + target.getName() + "님이 TPA 요청을 거부했습니다!");
         }
 
         return true;
