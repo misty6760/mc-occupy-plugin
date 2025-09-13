@@ -67,7 +67,7 @@ public class CaptureZone {
     }
 
     /**
-     * 플레이어가 구역에 들어왔는지 확인
+     * 플레이어가 구역에 들어왔는지 확인 (정사각형 영역)
      * @param player 확인할 플레이어
      * @return 구역 내부 여부
      */
@@ -77,8 +77,13 @@ public class CaptureZone {
         }
 
         Location playerLoc = player.getLocation();
-        double distance = center.distance(playerLoc);
-        return distance <= radius;
+        
+        // 정사각형 영역 계산 (반지름 대신 절반 크기 사용)
+        double halfSize = radius;
+        double dx = Math.abs(playerLoc.getX() - center.getX());
+        double dz = Math.abs(playerLoc.getZ() - center.getZ());
+        
+        return dx <= halfSize && dz <= halfSize;
     }
 
     /**

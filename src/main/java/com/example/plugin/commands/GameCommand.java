@@ -197,7 +197,14 @@ public class GameCommand implements CommandExecutor, TabCompleter {
      */
     private void stopGame(Player player) {
         if (!captureManager.isGameActive()) {
-            player.sendMessage(ChatColor.RED + "게임이 진행 중이 아닙니다!");
+            // 테스트 모드인지 확인
+            if (captureManager.isTestMode()) {
+                player.sendMessage(ChatColor.YELLOW + "테스트 모드가 활성화되어 있습니다. 테스트 모드를 비활성화합니다.");
+                captureManager.resetTestCaptureTime();
+                player.sendMessage(ChatColor.GREEN + "테스트 모드가 비활성화되었습니다.");
+            } else {
+                player.sendMessage(ChatColor.RED + "게임이 진행 중이 아닙니다!");
+            }
             return;
         }
 

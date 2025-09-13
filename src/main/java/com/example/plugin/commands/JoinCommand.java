@@ -84,7 +84,7 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            // 첫 번째 인수: 팀 이름들 (메모리 효율적인 방식)
+            // 첫 번째 인수: 팀 이름들
             String input = args[0].toLowerCase();
             List<String> matches = new ArrayList<>();
             for (String teamName : teamManager.getTeamNames()) {

@@ -63,8 +63,7 @@ public class ZoneEffectManager {
      * @param team 점령한 팀
      */
     private void applyFireZoneEffects(CaptureZone zone, Team team) {
-        // 용암 지대 생성
-        createLavaZone(zone);
+        // 용암 지대 생성 제거 - 효과만 적용
         
         // 팀원들에게 화염 저항 효과 부여
         BukkitRunnable task = new BukkitRunnable() {
@@ -90,8 +89,7 @@ public class ZoneEffectManager {
      * @param team 점령한 팀
      */
     private void applyWaterZoneEffects(CaptureZone zone, Team team) {
-        // 물 지대 생성
-        createWaterZone(zone);
+        // 물 지대 생성 제거 - 효과만 적용
         
         // 팀원들에게 수중 호흡과 돌고래의 가호 효과 부여
         BukkitRunnable task = new BukkitRunnable() {
@@ -118,8 +116,7 @@ public class ZoneEffectManager {
      * @param team 점령한 팀
      */
     private void applyIceZoneEffects(CaptureZone zone, Team team) {
-        // 얼음 지대 생성
-        createIceZone(zone);
+        // 얼음 지대 생성 제거 - 효과만 적용
         
         // 적에게 구속 효과, 아군은 면역
         BukkitRunnable task = new BukkitRunnable() {
@@ -146,13 +143,43 @@ public class ZoneEffectManager {
     }
 
     /**
+     * 얼음 지역 기본 디버프 적용 (미점령 또는 상대 팀 점령 시)
+     * @param zone 점령지
+     * @param currentTeam 현재 점령한 팀 (null이면 미점령)
+     */
+    public void applyIceZoneDefaultDebuff(CaptureZone zone, Team currentTeam) {
+        stopZoneEffects(zone.getName());
+        
+        BukkitRunnable task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (zone.isPlayerInZone(player)) {
+                        if (currentTeam != null && currentTeam.hasMember(player)) {
+                            // 아군은 면역
+                            player.removePotionEffect(PotionEffectType.SLOW);
+                        } else {
+                            // 미점령 또는 상대 팀 점령 시 구속 1 디버프
+                            player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 100, 0));
+                        }
+                        
+                        // 얼음 파티클 효과
+                        player.getWorld().spawnParticle(Particle.SNOWBALL, player.getLocation(), 20, 1.0, 1.0, 1.0, 0.1);
+                    }
+                }
+            }
+        };
+        task.runTaskTimer(plugin, 0L, 20L);
+        effectTasks.put(zone.getName(), task);
+    }
+
+    /**
      * 바람 점령지 효과 적용
      * @param zone 점령지
      * @param team 점령한 팀
      */
     private void applyWindZoneEffects(CaptureZone zone, Team team) {
-        // 점프 맵 구조 생성
-        createJumpZone(zone);
+        // 점프 맵 구조 생성 제거 - 효과만 적용
         
         // 팀원들에게 신속 효과 부여
         BukkitRunnable task = new BukkitRunnable() {
@@ -197,104 +224,9 @@ public class ZoneEffectManager {
         effectTasks.put(zone.getName(), task);
     }
 
-    /**
-     * 용암 지대 생성
-     * @param zone 점령지
-     */
-    private void createLavaZone(CaptureZone zone) {
-        Location center = zone.getCenter();
-        int radius = (int) zone.getRadius();
-        List<Location> blocks = new ArrayList<>();
-        
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                if (x * x + z * z <= radius * radius) {
-                    Location loc = center.clone().add(x, 0, z);
-                    if (loc.getBlock().getType() == Material.AIR) {
-                        loc.getBlock().setType(Material.LAVA);
-                        blocks.add(loc);
-                    }
-                }
-            }
-        }
-        
-        zoneBlocks.put(zone.getName(), blocks);
-    }
 
-    /**
-     * 물 지대 생성
-     * @param zone 점령지
-     */
-    private void createWaterZone(CaptureZone zone) {
-        Location center = zone.getCenter();
-        int radius = (int) zone.getRadius();
-        List<Location> blocks = new ArrayList<>();
-        
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                if (x * x + z * z <= radius * radius) {
-                    for (int y = 0; y < 5; y++) { // 5칸 높이 물
-                        Location loc = center.clone().add(x, y, z);
-                        if (loc.getBlock().getType() == Material.AIR) {
-                            loc.getBlock().setType(Material.WATER);
-                            blocks.add(loc);
-                        }
-                    }
-                }
-            }
-        }
-        
-        zoneBlocks.put(zone.getName(), blocks);
-    }
 
-    /**
-     * 얼음 지대 생성
-     * @param zone 점령지
-     */
-    private void createIceZone(CaptureZone zone) {
-        Location center = zone.getCenter();
-        int radius = (int) zone.getRadius();
-        List<Location> blocks = new ArrayList<>();
-        
-        for (int x = -radius; x <= radius; x++) {
-            for (int z = -radius; z <= radius; z++) {
-                if (x * x + z * z <= radius * radius) {
-                    Location loc = center.clone().add(x, 0, z);
-                    if (loc.getBlock().getType() == Material.AIR) {
-                        loc.getBlock().setType(Material.ICE);
-                        blocks.add(loc);
-                    }
-                }
-            }
-        }
-        
-        zoneBlocks.put(zone.getName(), blocks);
-    }
 
-    /**
-     * 점프 맵 생성
-     * @param zone 점령지
-     */
-    private void createJumpZone(CaptureZone zone) {
-        Location center = zone.getCenter();
-        int radius = (int) zone.getRadius();
-        List<Location> blocks = new ArrayList<>();
-        
-        // 점프 맵 구조 생성 (간단한 예시)
-        for (int x = -radius; x <= radius; x += 3) {
-            for (int z = -radius; z <= radius; z += 3) {
-                if (x * x + z * z <= radius * radius) {
-                    Location loc = center.clone().add(x, 0, z);
-                    if (loc.getBlock().getType() == Material.AIR) {
-                        loc.getBlock().setType(Material.STONE);
-                        blocks.add(loc);
-                    }
-                }
-            }
-        }
-        
-        zoneBlocks.put(zone.getName(), blocks);
-    }
 
     /**
      * 전장 환경 생성
@@ -333,6 +265,15 @@ public class ZoneEffectManager {
         
         // 블록 복원
         restoreZoneBlocks(zoneName);
+    }
+
+    /**
+     * 모든 점령지 효과 중단
+     */
+    public void stopAllZoneEffects() {
+        for (String zoneName : new HashSet<>(effectTasks.keySet())) {
+            stopZoneEffects(zoneName);
+        }
     }
 
     /**

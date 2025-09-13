@@ -107,7 +107,7 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
         try {
             zonesConfig.save(zonesFile);
             
-            // 점령지 생성
+            // 점령지 생성 (정사각형 영역)
             CaptureZone zone = new CaptureZone(zoneName, zoneType, playerLoc, 2.5);
             captureManager.createCaptureZone(zoneName, zoneType, playerLoc, 2.5);
             
@@ -116,6 +116,7 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             
             player.sendMessage(ChatColor.GREEN + zoneName + " 점령지와 신호기를 설정했습니다!");
             player.sendMessage(ChatColor.YELLOW + "위치: " + playerLoc.getBlockX() + ", " + playerLoc.getBlockY() + ", " + playerLoc.getBlockZ());
+            player.sendMessage(ChatColor.YELLOW + "영역: " + (2.5 * 2) + "x" + (2.5 * 2) + " 정사각형 (중심에서 ±2.5블록)");
             player.sendMessage(ChatColor.YELLOW + "신호기가 자동으로 생성되었습니다.");
         } catch (IOException e) {
             player.sendMessage(ChatColor.RED + "설정 파일 저장 중 오류가 발생했습니다.");
@@ -139,7 +140,7 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             
             player.sendMessage(ChatColor.WHITE + "• " + zoneName + " (" + type + ")");
             player.sendMessage(ChatColor.GRAY + "  위치: " + world + " " + x + ", " + y + ", " + z);
-            player.sendMessage(ChatColor.GRAY + "  크기: " + radius + " 블록 반지름");
+            player.sendMessage(ChatColor.GRAY + "  크기: " + (radius * 2) + "x" + (radius * 2) + " 정사각형 (중심에서 ±" + radius + "블록)");
         }
     }
 

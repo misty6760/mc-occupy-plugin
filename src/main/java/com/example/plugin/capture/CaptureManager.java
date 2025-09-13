@@ -16,6 +16,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.io.File;
 import java.util.*;
@@ -290,6 +293,14 @@ public class CaptureManager {
                 zone.stopCapture();
             }
         }
+        
+        // 얼음 지역 기본 디버프 적용
+        if (zone.getType() == CaptureZone.ZoneType.ICE) {
+            Team currentTeam = zone.getCurrentTeam() != null ? teamManager.getTeam(zone.getCurrentTeam()) : null;
+            if (effectManager != null) {
+                effectManager.applyIceZoneDefaultDebuff(zone, currentTeam);
+            }
+        }
     }
 
     /**
@@ -386,6 +397,14 @@ public class CaptureManager {
             if (checkTeamWinCondition(team)) {
                 broadcastMessage(ChatColor.GOLD + team.getName() + " 팀이 승리했습니다!");
                 stopGame();
+                
+                // 5초 후 자동 초기화
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        autoResetGame();
+                    }
+                }.runTaskLater(plugin, 100L); // 5초 후 실행
                 return;
             }
         }
@@ -423,6 +442,30 @@ public class CaptureManager {
         }
 
         return false;
+    }
+
+    /**
+     * 게임 자동 초기화
+     */
+    private void autoResetGame() {
+        // 모든 점령지 초기화
+        resetAllZones();
+        
+        // 모든 팀 점수 초기화
+        teamManager.resetAllScores();
+        
+        // 모든 효과 정리
+        if (effectManager != null) {
+            effectManager.stopAllZoneEffects();
+        }
+        
+        // 보스바 정리
+        if (centerBossBar != null) {
+            centerBossBar.removeAll();
+        }
+        
+        broadcastMessage(ChatColor.GREEN + "게임이 자동으로 초기화되었습니다!");
+        broadcastMessage(ChatColor.YELLOW + "새로운 게임을 시작하려면 /game start 명령어를 사용하세요.");
     }
 
     /**
@@ -546,8 +589,68 @@ public class CaptureManager {
      * 스코어보드 업데이트
      */
     private void updateScoreboard() {
-        // 스코어보드는 현재 구현하지 않음 (액션바 충돌 방지)
-        // 추후 사이드바 스코어보드로 구현 예정
+        if (!gameActive) return;
+        
+        // 모든 온라인 플레이어에게 스코어보드 표시
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updatePlayerScoreboard(player);
+        }
+    }
+    
+    /**
+     * 플레이어별 스코어보드 업데이트
+     * @param player 대상 플레이어
+     */
+    @SuppressWarnings("deprecation")
+    private void updatePlayerScoreboard(Player player) {
+        // 스코어보드 생성 또는 가져오기
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = scoreboard.getObjective("team_scores");
+        
+        if (objective == null) {
+            objective = scoreboard.registerNewObjective("team_scores", "dummy", ChatColor.GOLD + "팀 점수");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+        
+        // 기존 점수 초기화
+        for (String entry : scoreboard.getEntries()) {
+            scoreboard.resetScores(entry);
+        }
+        
+        // 팀 점수 표시
+        List<Team> teams = new ArrayList<>(teamManager.getAllTeams());
+        teams.sort((t1, t2) -> Integer.compare(t2.getScore(), t1.getScore())); // 점수 높은 순으로 정렬
+        
+        int position = teams.size();
+        for (Team team : teams) {
+            String teamName = team.getName();
+            int score = team.getScore();
+            
+            // 팀 색상 적용
+            ChatColor teamColor = getTeamColor(teamName);
+            String displayName = teamColor + teamName + ChatColor.WHITE + ": " + ChatColor.YELLOW + score;
+            
+            objective.getScore(displayName).setScore(position);
+            position--;
+        }
+        
+        // 플레이어에게 스코어보드 설정
+        player.setScoreboard(scoreboard);
+    }
+    
+    /**
+     * 팀 색상 반환
+     * @param teamName 팀 이름
+     * @return 팀 색상
+     */
+    private ChatColor getTeamColor(String teamName) {
+        switch (teamName.toLowerCase()) {
+            case "red": return ChatColor.RED;
+            case "blue": return ChatColor.BLUE;
+            case "green": return ChatColor.GREEN;
+            case "yellow": return ChatColor.YELLOW;
+            default: return ChatColor.WHITE;
+        }
     }
     
     

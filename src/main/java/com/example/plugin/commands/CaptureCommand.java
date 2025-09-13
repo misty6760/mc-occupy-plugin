@@ -10,7 +10,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -131,26 +131,30 @@ public class CaptureCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        
         if (args.length == 1) {
             // 첫 번째 인수: 점령지 이름들 또는 명령어
-            List<String> captureCommands = Arrays.asList("list", "stop");
-            for (String cmd : captureCommands) {
-                if (cmd.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    completions.add(cmd);
-                }
+            String input = args[0].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            // 명령어들 먼저 추가
+            if ("list".startsWith(input)) {
+                completions.add("list");
+            }
+            if ("stop".startsWith(input)) {
+                completions.add("stop");
             }
             
             // 점령지 이름들
             for (CaptureZone zone : captureManager.getAllCaptureZones()) {
                 String zoneName = zone.getName();
-                if (zoneName.toLowerCase().startsWith(args[0].toLowerCase())) {
+                if (zoneName.toLowerCase().startsWith(input)) {
                     completions.add(zoneName);
                 }
             }
+            
+            return completions;
         }
         
-        return completions;
+        return Collections.emptyList();
     }
 }
