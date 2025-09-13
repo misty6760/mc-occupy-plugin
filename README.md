@@ -77,7 +77,7 @@ mvn clean package
 
 ### 점령지 설정 (관리자)
 
--  `/zone set <점령지이름>` - 현재 위치에 점령지와 신호기 설정
+-  `/zone set <점령지이름>` - 현재 위치에 점령지 설정
 -  `/zone list` - 점령지 목록 보기
 -  `/zone reload` - 설정 다시 로드
 -  `/zone help` - 도움말 보기
@@ -132,6 +132,13 @@ mvn clean package
 -  팀 이름은 20자 이하
 -  중복된 이름으로는 변경 불가
 -  기존 이름과 새 이름이 같으면 변경 불가
+
+### 테스트 명령어 (관리자)
+
+-  `/test capture-time <시간>` - 점령 시간 설정 (초)
+-  `/test capture-time reset` - 점령 시간 원래대로 복구
+-  `/test capture-time status` - 현재 점령 시간 확인
+-  `/test help` - 테스트 명령어 도움말
 
 ## 📁 프로젝트 구조
 
@@ -268,7 +275,7 @@ boolean debug = getConfig().getBoolean("settings.debug");
 ### 점령지 설정
 
 -  **동적 설정**: `/zone set <점령지이름>` 명령어로 위치 변경 가능
--  **신호기 자동 생성**: 점령지 설정 시 신호기와 색유리 자동 설치
+-  **자동 설정**: 점령지 설정 시 자동으로 구조 생성
 -  **설정 파일**: `zones.yml`에서 점령지 위치 관리
 
 ## 💡 사용 예시

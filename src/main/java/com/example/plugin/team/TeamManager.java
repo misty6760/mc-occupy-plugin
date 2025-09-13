@@ -181,9 +181,17 @@ public class TeamManager {
      * @return 팀원 수가 가장 적은 팀
      */
     public Team getTeamWithLeastMembers() {
-        return teams.values().stream()
-                .min(Comparator.comparingInt(Team::getMemberCount))
-                .orElse(null);
+        Team result = null;
+        int minCount = Integer.MAX_VALUE;
+        
+        for (Team team : teams.values()) {
+            int count = team.getMemberCount();
+            if (count < minCount) {
+                minCount = count;
+                result = team;
+            }
+        }
+        return result;
     }
 
     /**
@@ -191,9 +199,17 @@ public class TeamManager {
      * @return 팀원 수가 가장 많은 팀
      */
     public Team getTeamWithMostMembers() {
-        return teams.values().stream()
-                .max(Comparator.comparingInt(Team::getMemberCount))
-                .orElse(null);
+        Team result = null;
+        int maxCount = -1;
+        
+        for (Team team : teams.values()) {
+            int count = team.getMemberCount();
+            if (count > maxCount) {
+                maxCount = count;
+                result = team;
+            }
+        }
+        return result;
     }
 
     /**

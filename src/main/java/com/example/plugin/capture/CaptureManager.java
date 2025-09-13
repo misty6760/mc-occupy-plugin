@@ -35,6 +35,10 @@ public class CaptureManager {
     private File zonesFile;
     private FileConfiguration zonesConfig;
     private BossBar centerBossBar;
+    
+    // 테스트용 점령 시간 설정
+    private int testCaptureTime = 300; // 기본 5분 (300초)
+    private boolean useTestTime = false;
 
     public CaptureManager(JavaPlugin plugin, TeamManager teamManager) {
         this.plugin = plugin;
@@ -214,7 +218,9 @@ public class CaptureManager {
      * 모든 점령지 업데이트
      */
     private void updateAllZones() {
-        for (CaptureZone zone : captureZones.values()) {
+        // captureZones.values()를 한 번만 호출하여 메모리 사용량 최적화
+        Collection<CaptureZone> zones = captureZones.values();
+        for (CaptureZone zone : zones) {
             updateZone(zone);
         }
     }
@@ -342,7 +348,9 @@ public class CaptureManager {
     private void applySpecialRules(CaptureZone zone, String teamName) {
         if (zone.getType() == CaptureZone.ZoneType.CENTER) {
             // 중앙 점령 시 기본 점령지 탈환 시간 15분으로 증가
-            for (CaptureZone basicZone : captureZones.values()) {
+            // 메모리 효율성을 위해 한 번만 반복
+            Collection<CaptureZone> zones = captureZones.values();
+            for (CaptureZone basicZone : zones) {
                 if (basicZone.getType() != CaptureZone.ZoneType.CENTER) {
                     // 탈환 시간을 15분으로 변경 (실제로는 CaptureZone 클래스에서 처리)
                     plugin.getLogger().info("중앙 점령으로 인해 " + basicZone.getName() + " 탈환 시간이 15분으로 증가했습니다!");
@@ -554,6 +562,56 @@ public class CaptureManager {
             }
         }
         captureTasks.clear();
+    }
+    
+    /**
+     * 테스트용 점령 시간 설정
+     * @param time 점령 시간 (초)
+     */
+    public void setTestCaptureTime(int time) {
+        this.testCaptureTime = time;
+        this.useTestTime = true;
+        
+        // 모든 점령지에 테스트 시간 적용
+        for (CaptureZone zone : captureZones.values()) {
+            zone.setCaptureTime(time);
+        }
+    }
+    
+    /**
+     * 테스트용 점령 시간 비활성화 (원래 시간으로 복구)
+     */
+    public void resetTestCaptureTime() {
+        this.useTestTime = false;
+        
+        // 모든 점령지를 원래 시간으로 복구
+        for (CaptureZone zone : captureZones.values()) {
+            zone.setCaptureTime(zone.getType().getCaptureTime() * 60);
+        }
+    }
+    
+    /**
+     * 현재 테스트용 점령 시간 반환
+     * @return 테스트용 점령 시간 (초)
+     */
+    public int getTestCaptureTime() {
+        return testCaptureTime;
+    }
+    
+    /**
+     * 테스트 모드 사용 여부 확인
+     * @return 테스트 모드 사용 중이면 true
+     */
+    public boolean isTestMode() {
+        return useTestTime;
+    }
+    
+    /**
+     * 실제 사용할 점령 시간 반환
+     * @return 테스트 모드면 테스트 시간, 아니면 기본 시간
+     */
+    public int getActualCaptureTime() {
+        return useTestTime ? testCaptureTime : 300; // 기본 5분
     }
 
     /**

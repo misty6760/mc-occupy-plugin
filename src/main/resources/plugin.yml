@@ -91,6 +91,13 @@ commands:
       permission: landcapture.info.view
       aliases: [i]
 
+   # 테스트 명령어
+   test:
+      description: 테스트 전용 명령어입니다
+      usage: /test [capture-time|help]
+      permission: landcapture.admin
+      aliases: [t]
+
 permissions:
    # 팀 관련 권한
    landcapture.team.info:

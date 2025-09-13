@@ -180,6 +180,11 @@ public class MinecraftPlugin extends JavaPlugin {
         
         // 정보 명령어
         getCommand("info").setExecutor(new InfoCommand(teamManager, captureManager));
+        
+        // 테스트 명령어
+        TestCommand testCommand = new TestCommand(captureManager);
+        getCommand("test").setExecutor(testCommand);
+        getCommand("test").setTabCompleter(testCommand);
     }
 
     /**

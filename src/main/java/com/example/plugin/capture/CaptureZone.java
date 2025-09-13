@@ -57,6 +57,14 @@ public class CaptureZone {
         this.isCapturing = false;
         this.capturingTeam = null;
     }
+    
+    /**
+     * 점령 시간 설정 (테스트용)
+     * @param time 점령 시간 (초)
+     */
+    public void setCaptureTime(int time) {
+        this.maxProgress = time;
+    }
 
     /**
      * 플레이어가 구역에 들어왔는지 확인
@@ -98,11 +106,11 @@ public class CaptureZone {
     }
 
     /**
-     * 구역 내 플레이어 UUID 목록 반환
+     * 구역 내 플레이어 UUID 목록 반환 (읽기 전용)
      * @return 플레이어 UUID 목록
      */
     public Set<UUID> getPlayersInZone() {
-        return new HashSet<>(playersInZone);
+        return Collections.unmodifiableSet(playersInZone);
     }
 
     /**

@@ -10,6 +10,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -82,17 +83,18 @@ public class JoinCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        
         if (args.length == 1) {
-            // 첫 번째 인수: 팀 이름들
+            // 첫 번째 인수: 팀 이름들 (메모리 효율적인 방식)
+            String input = args[0].toLowerCase();
+            List<String> matches = new ArrayList<>();
             for (String teamName : teamManager.getTeamNames()) {
-                if (teamName.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    completions.add(teamName);
+                if (teamName.toLowerCase().startsWith(input)) {
+                    matches.add(teamName);
                 }
             }
+            return matches;
         }
         
-        return completions;
+        return Collections.emptyList();
     }
 }

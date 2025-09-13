@@ -15,8 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -95,9 +94,6 @@ public class GameCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "  /game stop" + ChatColor.WHITE + " - 게임 중단");
         player.sendMessage(ChatColor.YELLOW + "  /game status" + ChatColor.WHITE + " - 게임 상태 및 점수 확인");
         player.sendMessage(ChatColor.YELLOW + "  /game reset" + ChatColor.WHITE + " - 게임 초기화");
-        player.sendMessage("");
-        
-        player.sendMessage(ChatColor.AQUA + "맵 관련:");
         player.sendMessage(ChatColor.YELLOW + "  /game map" + ChatColor.WHITE + " - 테스트 맵 및 점령지 위치 표시");
         player.sendMessage("");
         
@@ -105,32 +101,52 @@ public class GameCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "  /join <팀명>" + ChatColor.WHITE + " - 팀에 가입");
         player.sendMessage(ChatColor.YELLOW + "  /leave" + ChatColor.WHITE + " - 팀에서 탈퇴");
         player.sendMessage(ChatColor.YELLOW + "  /team" + ChatColor.WHITE + " - 팀 정보 확인");
+        player.sendMessage(ChatColor.YELLOW + "  /team rename <기존이름> <새이름>" + ChatColor.WHITE + " - 팀 이름 변경 (관리자)");
         player.sendMessage("");
         
         player.sendMessage(ChatColor.AQUA + "점령 관련:");
-        player.sendMessage(ChatColor.YELLOW + "  /capture <점령지>" + ChatColor.WHITE + " - 점령지 점령 시작");
-        player.sendMessage(ChatColor.YELLOW + "  /capture list" + ChatColor.WHITE + " - 점령지 목록 확인");
-        player.sendMessage(ChatColor.YELLOW + "  /capture stop" + ChatColor.WHITE + " - 점령 중단");
+        player.sendMessage(ChatColor.YELLOW + "  /capture" + ChatColor.WHITE + " - 현재 위치 점령지 정보");
+        player.sendMessage(ChatColor.YELLOW + "  /capture <점령지>" + ChatColor.WHITE + " - 특정 점령지 정보");
         player.sendMessage("");
         
-        player.sendMessage(ChatColor.AQUA + "TPA 관련:");
+        player.sendMessage(ChatColor.AQUA + "정보 관련:");
+        player.sendMessage(ChatColor.YELLOW + "  /info" + ChatColor.WHITE + " - 전체 게임 정보");
+        player.sendMessage(ChatColor.YELLOW + "  /info team" + ChatColor.WHITE + " - 팀 정보");
+        player.sendMessage(ChatColor.YELLOW + "  /info capture" + ChatColor.WHITE + " - 점령지 정보");
+        player.sendMessage(ChatColor.YELLOW + "  /info game" + ChatColor.WHITE + " - 게임 규칙");
+        player.sendMessage("");
+        
+        player.sendMessage(ChatColor.AQUA + "TPA 관련 (팀원 전용):");
         player.sendMessage(ChatColor.YELLOW + "  /tpa <플레이어>" + ChatColor.WHITE + " - 팀원에게 TPA 요청");
         player.sendMessage(ChatColor.YELLOW + "  /tpaccept" + ChatColor.WHITE + " - TPA 요청 수락");
         player.sendMessage(ChatColor.YELLOW + "  /tpdeny" + ChatColor.WHITE + " - TPA 요청 거절");
+        player.sendMessage(ChatColor.YELLOW + "  /tpcancel" + ChatColor.WHITE + " - TPA 요청 취소");
+        player.sendMessage(ChatColor.YELLOW + "  /tpastatus" + ChatColor.WHITE + " - TPA 상태 확인");
         player.sendMessage("");
         
         player.sendMessage(ChatColor.AQUA + "교환 관련:");
-        player.sendMessage(ChatColor.YELLOW + "  /exchange" + ChatColor.WHITE + " - 교환 가능한 아이템 확인");
-        player.sendMessage(ChatColor.YELLOW + "  /exchange <아이템> <수량>" + ChatColor.WHITE + " - 아이템 교환");
+        player.sendMessage(ChatColor.YELLOW + "  /exchange" + ChatColor.WHITE + " - 교환 가능한 아이템 목록");
+        player.sendMessage(ChatColor.YELLOW + "  /exchange info" + ChatColor.WHITE + " - 내가 교환할 수 있는 아이템 확인");
+        player.sendMessage(ChatColor.GRAY + "  왼손에 아이템을 들고 우클릭하여 교환");
         player.sendMessage("");
         
-        player.sendMessage(ChatColor.AQUA + "신호기 관련:");
-        player.sendMessage(ChatColor.YELLOW + "  /beacon create" + ChatColor.WHITE + " - 신호기 구조 생성");
-        player.sendMessage(ChatColor.YELLOW + "  /beacon reset" + ChatColor.WHITE + " - 신호기 색상 초기화");
+        player.sendMessage(ChatColor.AQUA + "점령지 설정 (관리자):");
+        player.sendMessage(ChatColor.YELLOW + "  /zone set <점령지이름>" + ChatColor.WHITE + " - 현재 위치에 점령지 설정");
+        player.sendMessage(ChatColor.YELLOW + "  /zone list" + ChatColor.WHITE + " - 점령지 목록 보기");
+        player.sendMessage(ChatColor.YELLOW + "  /zone reload" + ChatColor.WHITE + " - 설정 다시 로드");
+        player.sendMessage(ChatColor.YELLOW + "  /zone help" + ChatColor.WHITE + " - 도움말 보기");
+        player.sendMessage("");
+        
+        player.sendMessage(ChatColor.AQUA + "테스트 명령어 (관리자):");
+        player.sendMessage(ChatColor.YELLOW + "  /test capture-time <시간>" + ChatColor.WHITE + " - 점령 시간 설정 (초)");
+        player.sendMessage(ChatColor.YELLOW + "  /test capture-time reset" + ChatColor.WHITE + " - 점령 시간 원래대로 복구");
+        player.sendMessage(ChatColor.YELLOW + "  /test capture-time status" + ChatColor.WHITE + " - 현재 점령 시간 확인");
+        player.sendMessage(ChatColor.YELLOW + "  /test help" + ChatColor.WHITE + " - 테스트 명령어 도움말");
         player.sendMessage("");
         
         player.sendMessage(ChatColor.GRAY + "팁: Tab 키를 눌러 명령어를 자동 완성할 수 있습니다!");
         player.sendMessage(ChatColor.GRAY + "팁: /game map으로 점령지 위치를 확인하세요!");
+        player.sendMessage(ChatColor.GRAY + "팁: /info game으로 게임 규칙을 확인하세요!");
     }
 
     /**
@@ -283,23 +299,34 @@ public class GameCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        
         if (args.length == 1) {
-            // 첫 번째 인수: 게임 명령어
-            List<String> gameCommands = Arrays.asList("start", "stop", "status", "reset", "map", "help");
-            for (String cmd : gameCommands) {
-                if (cmd.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    completions.add(cmd);
-                }
+            // 첫 번째 인수: 게임 명령어 (메모리 효율적인 방식)
+            String input = args[0].toLowerCase();
+            if ("start".startsWith(input)) {
+                return Collections.singletonList("start");
+            }
+            if ("stop".startsWith(input)) {
+                return Collections.singletonList("stop");
+            }
+            if ("status".startsWith(input)) {
+                return Collections.singletonList("status");
+            }
+            if ("reset".startsWith(input)) {
+                return Collections.singletonList("reset");
+            }
+            if ("map".startsWith(input)) {
+                return Collections.singletonList("map");
+            }
+            if ("help".startsWith(input)) {
+                return Collections.singletonList("help");
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
             // /game start의 두 번째 인수
             if ("test".startsWith(args[1].toLowerCase())) {
-                completions.add("test");
+                return Collections.singletonList("test");
             }
         }
         
-        return completions;
+        return Collections.emptyList();
     }
 }

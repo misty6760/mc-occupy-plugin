@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -181,23 +181,41 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-
         if (args.length == 1) {
+            // 첫 번째 인수: zone 명령어 (메모리 효율적인 방식)
             String input = args[0].toLowerCase();
-            if ("set".startsWith(input)) completions.add("set");
-            if ("list".startsWith(input)) completions.add("list");
-            if ("reload".startsWith(input)) completions.add("reload");
-            if ("help".startsWith(input)) completions.add("help");
+            if ("set".startsWith(input)) {
+                return Collections.singletonList("set");
+            }
+            if ("list".startsWith(input)) {
+                return Collections.singletonList("list");
+            }
+            if ("reload".startsWith(input)) {
+                return Collections.singletonList("reload");
+            }
+            if ("help".startsWith(input)) {
+                return Collections.singletonList("help");
+            }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
+            // 두 번째 인수: 점령지 이름들
             String input = args[1].toLowerCase();
-            if ("center".startsWith(input)) completions.add("center");
-            if ("water".startsWith(input)) completions.add("water");
-            if ("fire".startsWith(input)) completions.add("fire");
-            if ("wind".startsWith(input)) completions.add("wind");
-            if ("ice".startsWith(input)) completions.add("ice");
+            if ("center".startsWith(input)) {
+                return Collections.singletonList("center");
+            }
+            if ("water".startsWith(input)) {
+                return Collections.singletonList("water");
+            }
+            if ("fire".startsWith(input)) {
+                return Collections.singletonList("fire");
+            }
+            if ("wind".startsWith(input)) {
+                return Collections.singletonList("wind");
+            }
+            if ("ice".startsWith(input)) {
+                return Collections.singletonList("ice");
+            }
         }
 
-        return completions;
+        return Collections.emptyList();
     }
 }

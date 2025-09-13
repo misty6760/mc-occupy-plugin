@@ -10,6 +10,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -122,27 +123,33 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        
         if (args.length == 1) {
-            // 첫 번째 인수: 팀 이름들 또는 rename
-            if ("rename".startsWith(args[0].toLowerCase())) {
-                completions.add("rename");
+            // 첫 번째 인수: 팀 이름들 또는 rename (메모리 효율적인 방식)
+            String input = args[0].toLowerCase();
+            if ("rename".startsWith(input)) {
+                return Collections.singletonList("rename");
             }
+            
+            // 팀 이름들 중에서 매칭되는 것 찾기
+            List<String> matches = new ArrayList<>();
             for (String teamName : teamManager.getTeamNames()) {
-                if (teamName.toLowerCase().startsWith(args[0].toLowerCase())) {
-                    completions.add(teamName);
+                if (teamName.toLowerCase().startsWith(input)) {
+                    matches.add(teamName);
                 }
             }
+            return matches;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("rename")) {
             // 두 번째 인수: 기존 팀 이름들
+            String input = args[1].toLowerCase();
+            List<String> matches = new ArrayList<>();
             for (String teamName : teamManager.getTeamNames()) {
-                if (teamName.toLowerCase().startsWith(args[1].toLowerCase())) {
-                    completions.add(teamName);
+                if (teamName.toLowerCase().startsWith(input)) {
+                    matches.add(teamName);
                 }
             }
+            return matches;
         }
         
-        return completions;
+        return Collections.emptyList();
     }
 }
