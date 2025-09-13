@@ -427,13 +427,17 @@ public class CaptureManager {
             String teamName = teamManager.getPlayerTeamName(player);
             if (teamName == null) continue;
             
+            boolean inZone = false;
+            
             // 기본 점령지들만 액션바에 표시 (플레이어가 있는 점령지)
             for (CaptureZone zone : captureZones.values()) {
                 if (zone.getType() == CaptureZone.ZoneType.CENTER) continue; // 중앙은 제외
                 
                 if (zone.isPlayerInZone(player)) {
+                    inZone = true;
                     // 점령지 내 팀 수 확인
                     int teamCount = getTeamCountInZone(zone);
+                    
                     
                     if (zone.isCaptured()) {
                         // 점령된 상태
@@ -464,6 +468,11 @@ public class CaptureManager {
                     }
                     break; // 하나의 점령지에만 있을 수 있으므로 첫 번째 점령지만 표시
                 }
+            }
+            
+            // 점령지에 들어가지 않은 플레이어는 액션바를 비움
+            if (!inZone) {
+                player.sendActionBar("");
             }
         }
         
@@ -528,40 +537,12 @@ public class CaptureManager {
     /**
      * 스코어보드 업데이트
      */
-    @SuppressWarnings("deprecation")
     private void updateScoreboard() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            String teamName = teamManager.getPlayerTeamName(player);
-            if (teamName == null) continue;
-            
-            StringBuilder scoreboard = new StringBuilder();
-            scoreboard.append(ChatColor.GOLD).append("=== 팀 점수 ===\n");
-            
-            // 모든 팀의 점수 표시
-            for (Team team : teamManager.getAllTeams()) {
-                ChatColor teamColor = getTeamColor(team.getName());
-                scoreboard.append(teamColor).append(team.getName()).append(": ")
-                         .append(ChatColor.WHITE).append(team.getScore()).append("점\n");
-            }
-            
-            // 플레이어의 액션바에 스코어보드 표시 (임시로 액션바 사용)
-            player.sendActionBar(scoreboard.toString());
-        }
+        // 스코어보드는 현재 구현하지 않음 (액션바 충돌 방지)
+        // 추후 사이드바 스코어보드로 구현 예정
     }
     
     
-    /**
-     * 팀별 색상 반환
-     */
-    private ChatColor getTeamColor(String teamName) {
-        switch (teamName.toLowerCase()) {
-            case "빨강": return ChatColor.RED;
-            case "파랑": return ChatColor.BLUE;
-            case "초록": return ChatColor.GREEN;
-            case "노랑": return ChatColor.YELLOW;
-            default: return ChatColor.WHITE;
-        }
-    }
 
     /**
      * 모든 점령 작업 중단

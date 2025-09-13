@@ -62,6 +62,7 @@ mvn clean package
 -  `/join <팀이름>` - 팀에 가입
 -  `/leave` - 팀에서 탈퇴
 -  `/team` - 팀 정보 확인
+-  `/team rename <기존이름> <새이름>` - 팀 이름 변경 (관리자)
 -  `/info` - 게임 정보 확인
 
 ### 게임 관리
@@ -123,6 +124,14 @@ mvn clean package
 -  `/tpdeny` - TPA 요청 거부
 -  `/tpcancel` - TPA 요청 취소
 -  `/tpastatus` - TPA 상태 확인
+
+### 팀 관리 (관리자)
+
+-  `/team rename <기존이름> <새이름>` - 팀 이름 변경
+-  **제한사항**:
+-  팀 이름은 20자 이하
+-  중복된 이름으로는 변경 불가
+-  기존 이름과 새 이름이 같으면 변경 불가
 
 ## 📁 프로젝트 구조
 
@@ -201,6 +210,7 @@ boolean debug = getConfig().getBoolean("settings.debug");
 -  4개 팀 (빨강, 파랑, 초록, 노랑)
 -  각 팀당 최대 3명
 -  팀원 간 TPA 사용 가능
+-  팀 이름 변경 가능 (관리자)
 
 ### 점령 시스템
 
@@ -260,6 +270,39 @@ boolean debug = getConfig().getBoolean("settings.debug");
 -  **동적 설정**: `/zone set <점령지이름>` 명령어로 위치 변경 가능
 -  **신호기 자동 생성**: 점령지 설정 시 신호기와 색유리 자동 설치
 -  **설정 파일**: `zones.yml`에서 점령지 위치 관리
+
+## 💡 사용 예시
+
+### 팀 이름 변경 예시
+
+```bash
+# 기본 팀 이름 확인
+/team
+
+# 팀 이름 변경 (관리자)
+/team rename 빨강팀 드래곤팀
+/team rename 파랑팀 아이스팀
+/team rename 초록팀 네이처팀
+/team rename 노랑팀 라이트팀
+
+# 변경된 팀 이름 확인
+/team
+```
+
+### 게임 시작 예시
+
+```bash
+# 테스트 게임 시작
+/game start test
+
+# 팀에 가입
+/join 드래곤팀
+
+# 점령지 확인
+/game map
+
+# 점령지에 이동하여 점령 시작
+```
 
 ## 📝 라이선스
 

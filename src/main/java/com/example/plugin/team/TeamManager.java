@@ -42,6 +42,31 @@ public class TeamManager {
     }
 
     /**
+     * 팀 이름 변경
+     * @param oldName 기존 팀 이름
+     * @param newName 새로운 팀 이름
+     * @return 변경 성공 여부
+     */
+    public boolean renameTeam(String oldName, String newName) {
+        Team team = teams.get(oldName);
+        if (team == null || teams.containsKey(newName)) {
+            return false; // 기존 팀이 없거나 새 이름이 이미 존재
+        }
+        
+        // 팀 이름 변경
+        team.setName(newName);
+        teams.remove(oldName);
+        teams.put(newName, team);
+        
+        // 플레이어 팀 매핑 업데이트
+        for (UUID memberId : team.getMembers()) {
+            playerTeams.put(memberId, newName);
+        }
+        
+        return true;
+    }
+
+    /**
      * 팀 삭제
      * @param name 팀 이름
      * @return 삭제 성공 여부

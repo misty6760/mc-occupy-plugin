@@ -40,8 +40,13 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
             // 특정 팀 정보 표시
             String teamName = args[0];
             showTeamInfo(player, teamName);
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("rename")) {
+            // 팀 이름 변경
+            String oldName = args[1];
+            String newName = args[2];
+            renameTeam(player, oldName, newName);
         } else {
-            player.sendMessage(ChatColor.RED + "사용법: /team [팀이름]");
+            player.sendMessage(ChatColor.RED + "사용법: /team [팀이름] 또는 /team rename <기존이름> <새이름>");
         }
 
         return true;
@@ -89,14 +94,50 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
         }
     }
 
+    /**
+     * 팀 이름 변경
+     */
+    private void renameTeam(Player player, String oldName, String newName) {
+        if (!player.hasPermission("landcapture.admin")) {
+            player.sendMessage(ChatColor.RED + "이 명령어는 관리자만 사용할 수 있습니다!");
+            return;
+        }
+
+        if (oldName.equals(newName)) {
+            player.sendMessage(ChatColor.RED + "기존 이름과 새 이름이 같습니다!");
+            return;
+        }
+
+        if (newName.length() > 20) {
+            player.sendMessage(ChatColor.RED + "팀 이름은 20자 이하여야 합니다!");
+            return;
+        }
+
+        if (teamManager.renameTeam(oldName, newName)) {
+            player.sendMessage(ChatColor.GREEN + "팀 이름을 '" + oldName + "'에서 '" + newName + "'으로 변경했습니다!");
+        } else {
+            player.sendMessage(ChatColor.RED + "팀 이름 변경에 실패했습니다! (팀이 존재하지 않거나 새 이름이 이미 사용 중)");
+        }
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         
         if (args.length == 1) {
-            // 첫 번째 인수: 팀 이름들
+            // 첫 번째 인수: 팀 이름들 또는 rename
+            if ("rename".startsWith(args[0].toLowerCase())) {
+                completions.add("rename");
+            }
             for (String teamName : teamManager.getTeamNames()) {
                 if (teamName.toLowerCase().startsWith(args[0].toLowerCase())) {
+                    completions.add(teamName);
+                }
+            }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("rename")) {
+            // 두 번째 인수: 기존 팀 이름들
+            for (String teamName : teamManager.getTeamNames()) {
+                if (teamName.toLowerCase().startsWith(args[1].toLowerCase())) {
                     completions.add(teamName);
                 }
             }

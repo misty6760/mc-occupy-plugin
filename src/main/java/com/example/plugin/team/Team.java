@@ -11,7 +11,7 @@ import java.util.UUID;
  * 3-4팀, 각 팀당 3명으로 구성
  */
 public class Team {
-    private final String name;
+    private String name;
     private final ChatColor color;
     private final List<UUID> members;
     private final int maxMembers = 3;
@@ -46,6 +46,14 @@ public class Team {
      */
     public boolean removeMember(Player player) {
         return members.remove(player.getUniqueId());
+    }
+
+    /**
+     * 팀 이름 설정
+     * @param name 새로운 팀 이름
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
