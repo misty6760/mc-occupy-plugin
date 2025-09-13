@@ -214,7 +214,7 @@ public class CaptureManager {
                 updateActionBar();
                 checkWinCondition();
             }
-        }.runTaskTimer(plugin, 0L, 20L); // 1초마다 실행
+        }.runTaskTimer(plugin, 0L, 10L); // 0.5초마다 실행
     }
 
     /**
@@ -464,6 +464,9 @@ public class CaptureManager {
             centerBossBar.removeAll();
         }
         
+        // 스코어보드 초기화
+        resetAllScoreboards();
+        
         broadcastMessage(ChatColor.GREEN + "게임이 자동으로 초기화되었습니다!");
         broadcastMessage(ChatColor.YELLOW + "새로운 게임을 시작하려면 /game start 명령어를 사용하세요.");
     }
@@ -594,6 +597,16 @@ public class CaptureManager {
         // 모든 온라인 플레이어에게 스코어보드 표시
         for (Player player : Bukkit.getOnlinePlayers()) {
             updatePlayerScoreboard(player);
+        }
+    }
+    
+    /**
+     * 모든 플레이어의 스코어보드 초기화
+     */
+    private void resetAllScoreboards() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            // 플레이어의 스코어보드를 기본 스코어보드로 설정
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         }
     }
     
