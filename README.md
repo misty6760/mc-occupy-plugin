@@ -406,7 +406,7 @@ boolean debug = getConfig().getBoolean("settings.debug");
 
 ### 상세 정보
 
--  **전체 라이선스 (영어)**: [LICENSE](LICENSE) 파일 참조
+-  **전체 라이선스 (영어, 한글)**: [LICENSE](LICENSE) 파일 참조
 -  **라이선스 웹사이트**: https://creativecommons.org/licenses/by-nc/4.0/
 -  **문의사항**: 상업적 사용이나 라이선스 관련 문의가 있으시면 연락주세요
 
