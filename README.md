@@ -434,7 +434,7 @@ boolean debug = getConfig().getBoolean("settings.debug");
 
 ---
 
-**개발팀**: AI Assistant  
+**개발팀**: Misty6760 
 **최종 업데이트**: 2025년 9월 13일  
 **버전**: v2.0.0-beta  
 **상태**: 안정 버전 (베타)
