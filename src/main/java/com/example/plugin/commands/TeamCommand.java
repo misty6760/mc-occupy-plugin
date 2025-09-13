@@ -124,14 +124,16 @@ public class TeamCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            // 첫 번째 인수: 팀 이름들 또는 rename (메모리 효율적인 방식)
+            // 첫 번째 인수: 팀 이름들 또는 rename
             String input = args[0].toLowerCase();
+            List<String> matches = new ArrayList<>();
+            
+            // rename 명령어 추가
             if ("rename".startsWith(input)) {
-                return Collections.singletonList("rename");
+                matches.add("rename");
             }
             
             // 팀 이름들 중에서 매칭되는 것 찾기
-            List<String> matches = new ArrayList<>();
             for (String teamName : teamManager.getTeamNames()) {
                 if (teamName.toLowerCase().startsWith(input)) {
                     matches.add(teamName);

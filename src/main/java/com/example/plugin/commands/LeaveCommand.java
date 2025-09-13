@@ -5,13 +5,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 팀 탈퇴 명령어 처리
  * /leave - 현재 팀에서 탈퇴
  */
-public class LeaveCommand implements CommandExecutor {
+public class LeaveCommand implements CommandExecutor, TabCompleter {
     private final TeamManager teamManager;
 
     public LeaveCommand(TeamManager teamManager) {
@@ -48,5 +52,11 @@ public class LeaveCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        // /leave 명령어는 인수가 없으므로 빈 리스트 반환
+        return Collections.emptyList();
     }
 }

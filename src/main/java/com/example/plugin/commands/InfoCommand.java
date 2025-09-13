@@ -8,7 +8,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 정보 관련 명령어 처리
@@ -16,7 +21,7 @@ import org.bukkit.entity.Player;
  * /info team - 팀 정보 표시
  * /info capture - 점령지 정보 표시
  */
-public class InfoCommand implements CommandExecutor {
+public class InfoCommand implements CommandExecutor, TabCompleter {
     private final TeamManager teamManager;
     private final CaptureManager captureManager;
 
@@ -167,5 +172,31 @@ public class InfoCommand implements CommandExecutor {
         player.sendMessage(ChatColor.YELLOW + "/info capture - 점령지 정보 표시");
         player.sendMessage(ChatColor.YELLOW + "/info game - 게임 규칙 및 상태 표시");
         player.sendMessage(ChatColor.YELLOW + "/info help - 이 도움말 표시");
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            // 첫 번째 인수: info 하위 명령어
+            String input = args[0].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            if ("team".startsWith(input)) {
+                completions.add("team");
+            }
+            if ("capture".startsWith(input)) {
+                completions.add("capture");
+            }
+            if ("game".startsWith(input)) {
+                completions.add("game");
+            }
+            if ("help".startsWith(input)) {
+                completions.add("help");
+            }
+            
+            return completions;
+        }
+        
+        return Collections.emptyList();
     }
 }

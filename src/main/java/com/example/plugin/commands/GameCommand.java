@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -307,29 +308,34 @@ public class GameCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            // 첫 번째 인수: 게임 명령어 (메모리 효율적인 방식)
+            // 첫 번째 인수: 게임 명령어
             String input = args[0].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
             if ("start".startsWith(input)) {
-                return Collections.singletonList("start");
+                completions.add("start");
             }
             if ("stop".startsWith(input)) {
-                return Collections.singletonList("stop");
+                completions.add("stop");
             }
             if ("status".startsWith(input)) {
-                return Collections.singletonList("status");
+                completions.add("status");
             }
             if ("reset".startsWith(input)) {
-                return Collections.singletonList("reset");
+                completions.add("reset");
             }
             if ("map".startsWith(input)) {
-                return Collections.singletonList("map");
+                completions.add("map");
             }
             if ("help".startsWith(input)) {
-                return Collections.singletonList("help");
+                completions.add("help");
             }
+            
+            return completions;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("start")) {
             // /game start의 두 번째 인수
-            if ("test".startsWith(args[1].toLowerCase())) {
+            String input = args[1].toLowerCase();
+            if ("test".startsWith(input)) {
                 return Collections.singletonList("test");
             }
         }

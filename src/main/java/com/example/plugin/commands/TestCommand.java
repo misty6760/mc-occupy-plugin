@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -171,23 +172,31 @@ public class TestCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            // 첫 번째 인수: 테스트 명령어 (메모리 효율적인 방식)
+            // 첫 번째 인수: 테스트 명령어
             String input = args[0].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
             if ("capture-time".startsWith(input)) {
-                return Collections.singletonList("capture-time");
+                completions.add("capture-time");
             }
             if ("help".startsWith(input)) {
-                return Collections.singletonList("help");
+                completions.add("help");
             }
+            
+            return completions;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("capture-time")) {
             // 두 번째 인수: capture-time 옵션
             String input = args[1].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
             if ("reset".startsWith(input)) {
-                return Collections.singletonList("reset");
+                completions.add("reset");
             }
             if ("status".startsWith(input)) {
-                return Collections.singletonList("status");
+                completions.add("status");
             }
+            
+            return completions;
         }
         
         return Collections.emptyList();

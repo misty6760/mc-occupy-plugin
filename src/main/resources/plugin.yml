@@ -1,5 +1,5 @@
 name: LandCapturePlugin
-version: 1.0.0
+version: Beta v2.0.0
 main: com.example.plugin.MinecraftPlugin
 api-version: 1.16
 description: 땅따먹기 게임 플러그인 for Paper 1.16.5

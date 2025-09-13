@@ -5,14 +5,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 교환 관련 명령어 처리
  * /exchange - 교환 가능한 아이템 목록 표시
  * /exchange info - 플레이어의 교환 가능한 아이템 정보 표시
  */
-public class ExchangeCommand implements CommandExecutor {
+public class ExchangeCommand implements CommandExecutor, TabCompleter {
     private final ExchangeManager exchangeManager;
 
     public ExchangeCommand(ExchangeManager exchangeManager) {
@@ -69,5 +74,25 @@ public class ExchangeCommand implements CommandExecutor {
         player.sendMessage(ChatColor.GRAY + "1. 교환할 아이템을 왼손에 들기");
         player.sendMessage(ChatColor.GRAY + "2. 아이템을 우클릭하여 교환 실행");
         player.sendMessage(ChatColor.GRAY + "3. 교환된 아이템은 인벤토리에 추가됨");
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 1) {
+            // 첫 번째 인수: exchange 하위 명령어
+            String input = args[0].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            if ("info".startsWith(input)) {
+                completions.add("info");
+            }
+            if ("help".startsWith(input)) {
+                completions.add("help");
+            }
+            
+            return completions;
+        }
+        
+        return Collections.emptyList();
     }
 }
