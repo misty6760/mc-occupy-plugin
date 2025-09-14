@@ -42,6 +42,10 @@ public class CaptureManager {
     // 테스트용 점령 시간 설정
     private int testCaptureTime = 300; // 기본 5분 (300초)
     private boolean useTestTime = false;
+    
+    // 업데이트 주기 설정 (틱 단위)
+    private long captureUpdateInterval = 20L; // 1초 (20틱)
+    private long uiUpdateInterval = 20L; // 1초 (20틱)
 
     public CaptureManager(JavaPlugin plugin, TeamManager teamManager) {
         this.plugin = plugin;
@@ -198,6 +202,7 @@ public class CaptureManager {
      * 점령 모니터링 시작
      */
     private void startCaptureMonitoring() {
+        // 게임 상태 업데이트 (1초마다)
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -208,13 +213,16 @@ public class CaptureManager {
                 
                 updateAllZones();
                 updateActionBar();
+                updateCenterZoneBossBar();
+                updateScoreboard();
                 checkWinCondition();
             }
         }.runTaskTimer(plugin, 0L, 20L); // 1초마다 실행
     }
 
+    
     /**
-     * 모든 점령지 업데이트
+     * 모든 점령지 업데이트 (기존 메서드 유지)
      */
     private void updateAllZones() {
         // captureZones.values()를 한 번만 호출하여 메모리 사용량 최적화
@@ -325,6 +333,12 @@ public class CaptureManager {
             
             // 재탈환 보호 시작
             zone.onCaptureComplete();
+            
+            // 중앙 점령지 보스바 100% 설정
+            if (zone.getType() == CaptureZone.ZoneType.CENTER && centerBossBar != null) {
+                centerBossBar.setProgress(1.0);
+                centerBossBar.setColor(BarColor.GREEN);
+            }
             
             // 신호기 색상 변경 (실제 구현 필요)
             changeBeaconColor(zone, team);
@@ -596,6 +610,9 @@ public class CaptureManager {
         } else if (centerZone.isCaptured()) {
             bossBarText.append(centerZone.getCurrentTeam()).append(" 점령");
             
+            // 점령 완료 시 보스바 100% 설정
+            centerBossBar.setProgress(1.0);
+            
             // 재탈환 보호 중인지 확인
             if (centerZone.isRecaptureProtected()) {
                 int remainingTime = centerZone.getRemainingRecaptureProtectionTime();
@@ -770,6 +787,34 @@ public class CaptureManager {
         }
         
         plugin.getLogger().info("모든 점령지의 재탈환 시간을 원래대로 복구했습니다!");
+    }
+    
+    /**
+     * 점령 시간 업데이트 주기 설정
+     * @param interval 업데이트 주기 (틱 단위, 20틱 = 1초)
+     */
+    public void setCaptureUpdateInterval(long interval) {
+        this.captureUpdateInterval = Math.max(1L, interval);
+        plugin.getLogger().info("점령 시간 업데이트 주기를 " + (interval / 20.0) + "초로 설정했습니다!");
+    }
+    
+    /**
+     * UI 업데이트 주기 설정
+     * @param interval 업데이트 주기 (틱 단위, 20틱 = 1초)
+     */
+    public void setUiUpdateInterval(long interval) {
+        this.uiUpdateInterval = Math.max(1L, interval);
+        plugin.getLogger().info("UI 업데이트 주기를 " + (interval / 20.0) + "초로 설정했습니다!");
+    }
+    
+    /**
+     * 현재 업데이트 주기 정보 반환
+     * @return 업데이트 주기 정보 문자열
+     */
+    public String getUpdateIntervalInfo() {
+        return String.format("점령 시간: %.1f초, UI: %.1f초", 
+                           captureUpdateInterval / 20.0, 
+                           uiUpdateInterval / 20.0);
     }
     
     /**

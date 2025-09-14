@@ -212,6 +212,7 @@ public class TestCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.WHITE + "  - 중앙 점령지: 15분");
         player.sendMessage(ChatColor.GRAY + "현재 테스트 모드: " + (captureManager.isTestMode() ? "활성화" : "비활성화"));
     }
+    
 
     /**
      * 테스트 명령어 도움말 표시
@@ -287,7 +288,7 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             
             return completions;
         }
-        
         return Collections.emptyList();
     }
 }
+
