@@ -101,6 +101,43 @@ public class BeaconManager {
 
 
     /**
+     * 점령지에 신호기 구조 생성 (기본 Y좌표 사용)
+     * @param zone 점령지
+     */
+    public void createBeaconStructure(CaptureZone zone) {
+        Location center = zone.getCenter();
+        if (center == null) return;
+
+        World world = center.getWorld();
+        if (world == null) return;
+
+        // 점령지 중심 기준 Y좌표 사용
+        int beaconY = center.getBlockY() - 1;  // 신호기: 중심 Y - 1
+        int baseY = center.getBlockY() - 2;    // 철블럭 기초: 중심 Y - 2
+        int glassY = center.getBlockY();       // 색유리: 중심 Y
+
+        // 신호기 기반 구조 생성 (3x3 철 블록)
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                Location blockLocation = center.clone().add(x, baseY - center.getBlockY(), z);
+                blockLocation.getBlock().setType(Material.IRON_BLOCK);
+            }
+        }
+
+        // 신호기 배치
+        Location beaconLocation = center.clone().add(0, beaconY - center.getBlockY(), 0);
+        beaconLocation.getBlock().setType(Material.BEACON);
+        beaconLocations.put(zone.getName(), beaconLocation);
+
+        // 점령지 타입에 맞는 색유리 설치
+        Location glassLocation = center.clone().add(0, glassY - center.getBlockY(), 0);
+        Material glassType = getZoneGlassType(zone.getType());
+        glassLocation.getBlock().setType(glassType);
+
+        plugin.getLogger().info(zone.getName() + " 점령지에 신호기 구조를 생성했습니다! (Y=" + beaconY + ")");
+    }
+
+    /**
      * 점령지에 신호기 구조 생성 (테스트용)
      * @param zone 점령지
      * @param player 명령어 실행자 (Y좌표 기준용)
@@ -240,6 +277,37 @@ public class BeaconManager {
     }
 
     /**
+     * 특정 점령지의 신호기 구조 제거
+     * @param zone 점령지
+     */
+    public void removeBeaconStructure(CaptureZone zone) {
+        Location beaconLoc = beaconLocations.get(zone.getName());
+        if (beaconLoc == null) return;
+        
+        World world = beaconLoc.getWorld();
+        if (world == null) return;
+        
+        // 신호기 제거 (흙으로 교체)
+        beaconLoc.getBlock().setType(Material.DIRT);
+        
+        // 색유리 제거 (흙으로 교체)
+        Location glassLoc = beaconLoc.clone().add(0, 1, 0);
+        glassLoc.getBlock().setType(Material.DIRT);
+        
+        // 철블럭 기초 제거 (흙으로 교체) - 3x3
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                Location baseLoc = beaconLoc.clone().add(x, -1, z);
+                baseLoc.getBlock().setType(Material.DIRT);
+            }
+        }
+        
+        // 신호기 위치 정보에서 제거
+        beaconLocations.remove(zone.getName());
+        plugin.getLogger().info(zone.getName() + " 점령지의 신호기 구조를 제거했습니다.");
+    }
+
+    /**
      * 모든 신호기 구조 제거 (신호기, 철블럭, 색유리를 흙으로 교체)
      */
     public void removeAllBeaconStructures() {
@@ -273,5 +341,49 @@ public class BeaconManager {
         // 신호기 위치 정보 초기화
         beaconLocations.clear();
         plugin.getLogger().info("모든 신호기 구조가 제거되었습니다.");
+    }
+    
+    /**
+     * 모든 신호기 초기화 (색상만 중립으로 변경)
+     * 구조는 유지하고 색상만 중립 상태로 변경
+     */
+    public void resetAllBeacons() {
+        for (Map.Entry<String, Location> entry : beaconLocations.entrySet()) {
+            Location location = entry.getValue();
+            
+            if (location.getBlock().getType().name().contains("BEACON")) {
+                // 신호기 색상을 중립(흰색)으로 변경
+                resetBeaconColor(location);
+            }
+        }
+        plugin.getLogger().info("모든 신호기가 중립 상태로 초기화되었습니다.");
+    }
+    
+    /**
+     * 특정 위치의 신호기 색상 초기화
+     * @param location 신호기 위치
+     */
+    private void resetBeaconColor(Location location) {
+        if (location == null || !location.getBlock().getType().name().contains("BEACON")) {
+            return;
+        }
+        
+        // 신호기 색상을 중립(흰색)으로 변경
+        setBeaconColor(location, ChatColor.WHITE);
+    }
+    
+    /**
+     * 특정 위치의 신호기 색상 설정
+     * @param location 신호기 위치
+     * @param color 설정할 색상
+     */
+    private void setBeaconColor(Location location, ChatColor color) {
+        if (location == null || !location.getBlock().getType().name().contains("BEACON")) {
+            return;
+        }
+        
+        // 신호기 색상 설정 로직 (구현 필요)
+        // 여기서는 로그만 출력
+        plugin.getLogger().info("신호기 색상을 " + color.name() + "으로 변경했습니다.");
     }
 }

@@ -89,7 +89,7 @@ public class CaptureManager {
             int x = zonesConfig.getInt(path + ".x", 0);
             int y = zonesConfig.getInt(path + ".y", 64);
             int z = zonesConfig.getInt(path + ".z", 0);
-            double radius = zonesConfig.getDouble(path + ".radius", 2.5);
+            double radius = zonesConfig.getDouble(path + ".radius", 7);
             String typeStr = zonesConfig.getString(path + ".type", "CENTER");
             
             World world = Bukkit.getWorld(worldName);
@@ -117,25 +117,25 @@ public class CaptureManager {
     private void initializeDefaultZones() {
         World world = Bukkit.getWorlds().get(0);
         
-        // 중앙 점령지 (5x5) - (0, 0)
+        // 중앙 점령지 (15x15) - (0, 0)
         createCaptureZone("center", CaptureZone.ZoneType.CENTER, 
-            new Location(world, 0, 64, 0), 2.5);
+            new Location(world, 0, 64, 0), 7);
         
         // 북서쪽 - 물 (-8, -8) - 꼭짓점에서 2칸 안쪽
         createCaptureZone("water", CaptureZone.ZoneType.WATER, 
-            new Location(world, -8, 64, -8), 2.5);
+            new Location(world, -8, 64, -8), 7);
         
         // 남동쪽 - 불 (8, 8) - 꼭짓점에서 2칸 안쪽
         createCaptureZone("fire", CaptureZone.ZoneType.FIRE, 
-            new Location(world, 8, 64, 8), 2.5);
+            new Location(world, 8, 64, 8), 7);
         
         // 남서쪽 - 바람 (-8, 8) - 꼭짓점에서 2칸 안쪽
         createCaptureZone("wind", CaptureZone.ZoneType.WIND, 
-            new Location(world, -8, 64, 8), 2.5);
+            new Location(world, -8, 64, 8), 7);
         
         // 북동쪽 - 얼음 (8, -8) - 꼭짓점에서 2칸 안쪽
         createCaptureZone("ice", CaptureZone.ZoneType.ICE, 
-            new Location(world, 8, 64, -8), 2.5);
+            new Location(world, 8, 64, -8), 7);
     }
     
     /**
@@ -169,6 +169,11 @@ public class CaptureManager {
     public void startGame() {
         gameActive = true;
         resetAllZones();
+        
+        // 점령지들을 다시 로드하여 최신 설정 적용
+        captureZones.clear();
+        initializeCaptureZones();
+        
         startCaptureMonitoring();
         broadcastMessage(ChatColor.GOLD + "땅따먹기 게임이 시작되었습니다!");
     }
@@ -188,15 +193,6 @@ public class CaptureManager {
         broadcastMessage(ChatColor.RED + "땅따먹기 게임이 종료되었습니다!");
     }
 
-    /**
-     * 모든 점령지 초기화
-     */
-    public void resetAllZones() {
-        for (CaptureZone zone : captureZones.values()) {
-            zone.stopCapture();
-            // 여기서 신호기 색상도 초기화해야 함
-        }
-    }
 
     /**
      * 점령 모니터링 시작
@@ -214,7 +210,7 @@ public class CaptureManager {
                 updateActionBar();
                 checkWinCondition();
             }
-        }.runTaskTimer(plugin, 0L, 10L); // 0.5초마다 실행
+        }.runTaskTimer(plugin, 0L, 20L); // 1초마다 실행
     }
 
     /**
@@ -267,8 +263,22 @@ public class CaptureManager {
             if (!zone.isCaptured() || !teamName.equals(zone.getCurrentTeam())) {
                 // 점령 시작
                 if (!zone.isCapturing() || !teamName.equals(zone.getCapturingTeam())) {
-                    zone.startCapture(teamName);
-                    broadcastCaptureStart(zone, teamName);
+                    if (zone.startCapture(teamName)) {
+                        broadcastCaptureStart(zone, teamName);
+                    } else {
+                        // 재탈환 보호 중
+                        int remainingTime = zone.getRemainingRecaptureProtectionTime();
+                        int minutes = remainingTime / 60;
+                        int seconds = remainingTime % 60;
+                        String timeStr = minutes > 0 ? minutes + "분 " + seconds + "초" : seconds + "초";
+                        
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            String playerTeam = teamManager.getPlayerTeamName(player);
+                            if (teamName.equals(playerTeam)) {
+                                player.sendMessage(ChatColor.RED + zone.getType().getDisplayName() + "은(는) 재탈환 보호 중입니다! (" + timeStr + " 남음)");
+                            }
+                        }
+                    }
                 } else {
                     // 점령 진행
                     if (zone.updateCaptureProgress(teamName)) {
@@ -312,6 +322,9 @@ public class CaptureManager {
         Team team = teamManager.getTeam(teamName);
         if (team != null) {
             team.addScore(zone.getType().getScoreValue());
+            
+            // 재탈환 보호 시작
+            zone.onCaptureComplete();
             
             // 신호기 색상 변경 (실제 구현 필요)
             changeBeaconColor(zone, team);
@@ -363,7 +376,8 @@ public class CaptureManager {
             Collection<CaptureZone> zones = captureZones.values();
             for (CaptureZone basicZone : zones) {
                 if (basicZone.getType() != CaptureZone.ZoneType.CENTER) {
-                    // 탈환 시간을 15분으로 변경 (실제로는 CaptureZone 클래스에서 처리)
+                    // 재탈환 보호 시간을 15분으로 연장
+                    basicZone.extendRecaptureProtection();
                     plugin.getLogger().info("중앙 점령으로 인해 " + basicZone.getName() + " 탈환 시간이 15분으로 증가했습니다!");
                 }
             }
@@ -561,11 +575,38 @@ public class CaptureManager {
         if (centerZone == null) return;
         
         StringBuilder bossBarText = new StringBuilder();
-        bossBarText.append("중앙 점령지: ");
+        bossBarText.append("제네시스: ");
         
-        if (centerZone.isCaptured()) {
+        // 고착 상태 확인 (여러 팀이 동시에 있을 때)
+        Set<String> teamsInZone = new HashSet<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (centerZone.isPlayerInZone(player)) {
+                String teamName = teamManager.getPlayerTeamName(player);
+                if (teamName != null) {
+                    teamsInZone.add(teamName);
+                }
+            }
+        }
+        
+        if (teamsInZone.size() > 1) {
+            // 고착 상태 - 여러 팀이 동시에 있음
+            bossBarText.append(ChatColor.RED + "고착 상태!");
+            centerBossBar.setColor(BarColor.RED);
+            centerBossBar.setProgress(1.0);
+        } else if (centerZone.isCaptured()) {
             bossBarText.append(centerZone.getCurrentTeam()).append(" 점령");
-            centerBossBar.setColor(BarColor.GREEN);
+            
+            // 재탈환 보호 중인지 확인
+            if (centerZone.isRecaptureProtected()) {
+                int remainingTime = centerZone.getRemainingRecaptureProtectionTime();
+                int minutes = remainingTime / 60;
+                int seconds = remainingTime % 60;
+                String timeStr = minutes > 0 ? minutes + "분 " + seconds + "초" : seconds + "초";
+                bossBarText.append(" (재탈환 보호: ").append(timeStr).append(")");
+                centerBossBar.setColor(BarColor.RED);
+            } else {
+                centerBossBar.setColor(BarColor.GREEN);
+            }
         } else if (centerZone.isCapturing()) {
             bossBarText.append(centerZone.getCapturingTeam())
                       .append(" 점령 중 (").append(centerZone.getCaptureProgressPercent()).append("%) - ")
@@ -707,6 +748,31 @@ public class CaptureManager {
     }
     
     /**
+     * 테스트용 재탈환 시간 설정
+     * @param time 재탈환 시간 (분)
+     */
+    public void setTestRecaptureTime(int time) {
+        // 모든 점령지에 테스트 재탈환 시간 적용
+        for (CaptureZone zone : captureZones.values()) {
+            zone.setRecaptureTime(time);
+        }
+        
+        plugin.getLogger().info("모든 점령지의 재탈환 시간을 " + time + "분으로 설정했습니다!");
+    }
+    
+    /**
+     * 테스트용 재탈환 시간 비활성화 (원래 시간으로 복구)
+     */
+    public void resetTestRecaptureTime() {
+        // 모든 점령지를 원래 재탈환 시간으로 복구
+        for (CaptureZone zone : captureZones.values()) {
+            zone.resetRecaptureTime();
+        }
+        
+        plugin.getLogger().info("모든 점령지의 재탈환 시간을 원래대로 복구했습니다!");
+    }
+    
+    /**
      * 현재 테스트용 점령 시간 반환
      * @return 테스트용 점령 시간 (초)
      */
@@ -778,7 +844,7 @@ public class CaptureManager {
             }
         }
         
-        // 점령한 팀에게만 특별한 타이틀 표시
+        // 점령한 팀에게만 특별한 타이틀 표시 (기본 점령지도 포함)
         for (Player player : Bukkit.getOnlinePlayers()) {
             String playerTeam = teamManager.getPlayerTeamName(player);
             if (teamName.equals(playerTeam)) {
@@ -788,17 +854,19 @@ public class CaptureManager {
             }
         }
         
-        // 기존 점령 팀에게만 알림 (기존 점령 팀이 있었다면)
-        String previousTeam = zone.getCurrentTeam();
-        if (previousTeam != null && !previousTeam.equals(teamName)) {
-            String lostMessage = ChatColor.RED + "경고! " + zone.getType().getDisplayName() + "이 " + teamName + " 팀에게 점령되었습니다!";
-            
-            // 기존 점령 팀에게만 빨간색 알림
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                String playerTeam = teamManager.getPlayerTeamName(player);
-                if (previousTeam.equals(playerTeam)) {
-                    player.sendMessage(lostMessage);
-                    player.sendTitle(ChatColor.RED + "점령지 점령됨!", lostMessage, 10, 60, 10);
+        // 기존 점령 팀에게만 알림 (기존 점령 팀이 있었다면) - 중앙 점령지만
+        if (zone.getType() == CaptureZone.ZoneType.CENTER) {
+            String previousTeam = zone.getCurrentTeam();
+            if (previousTeam != null && !previousTeam.equals(teamName)) {
+                String lostMessage = ChatColor.RED + "경고! " + zone.getType().getDisplayName() + "이 " + teamName + " 팀에게 점령되었습니다!";
+                
+                // 기존 점령 팀에게만 빨간색 알림
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    String playerTeam = teamManager.getPlayerTeamName(player);
+                    if (previousTeam.equals(playerTeam)) {
+                        player.sendMessage(lostMessage);
+                        player.sendTitle(ChatColor.RED + "점령지 점령됨!", lostMessage, 10, 60, 10);
+                    }
                 }
             }
         }
@@ -836,5 +904,26 @@ public class CaptureManager {
      */
     public boolean isGameActive() {
         return gameActive;
+    }
+    
+    /**
+     * 모든 점령지 초기화
+     * 점령 상태, 점령 진행도, 점령 팀을 모두 초기화
+     */
+    public void resetAllZones() {
+        // 모든 점령 작업 중단
+        stopAllCaptureTasks();
+        
+        // 모든 점령지 초기화
+        for (CaptureZone zone : captureZones.values()) {
+            zone.resetZone();
+        }
+        
+        // 신호기 초기화
+        if (beaconManager != null) {
+            beaconManager.resetAllBeacons();
+        }
+        
+        plugin.getLogger().info("모든 점령지가 초기화되었습니다.");
     }
 }

@@ -224,10 +224,6 @@ public class MinecraftPlugin extends JavaPlugin {
         getCommand("zone").setExecutor(zoneCommand);
         getCommand("zone").setTabCompleter(zoneCommand);
         
-        // 정보 명령어
-        InfoCommand infoCommand = new InfoCommand(teamManager, captureManager);
-        getCommand("info").setExecutor(infoCommand);
-        getCommand("info").setTabCompleter(infoCommand);
         
         // 테스트 명령어
         TestCommand testCommand = new TestCommand(captureManager);

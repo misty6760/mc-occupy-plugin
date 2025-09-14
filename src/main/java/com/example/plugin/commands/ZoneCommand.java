@@ -71,6 +71,9 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             case "reload":
                 reloadZones(player);
                 break;
+            case "reset":
+                resetBeacons(player);
+                break;
             case "help":
                 showZoneHelp(player);
                 break;
@@ -136,7 +139,7 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             int x = zonesConfig.getInt(path + ".x", 0);
             int y = zonesConfig.getInt(path + ".y", 64);
             int z = zonesConfig.getInt(path + ".z", 0);
-            double radius = zonesConfig.getDouble(path + ".radius", 2.5);
+            double radius = zonesConfig.getDouble(path + ".radius", 7.5);
             String type = zonesConfig.getString(path + ".type", "CENTER");
             
             player.sendMessage(ChatColor.WHITE + "• " + zoneName + " (" + type + ")");
@@ -155,6 +158,28 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
+     * 신호기 재설치
+     */
+    private void resetBeacons(Player player) {
+        player.sendMessage(ChatColor.YELLOW + "모든 점령지의 신호기를 재설치합니다...");
+        
+        int resetCount = 0;
+        
+        // 모든 점령지에 대해 신호기 재설치
+        for (CaptureZone zone : captureManager.getAllCaptureZones()) {
+            if (beaconManager != null) {
+                // 기존 신호기 제거
+                beaconManager.removeBeaconStructure(zone);
+                // 새 신호기 설치
+                beaconManager.createBeaconStructure(zone);
+                resetCount++;
+            }
+        }
+        
+        player.sendMessage(ChatColor.GREEN + "신호기 재설치 완료! (" + resetCount + "개 점령지)");
+    }
+
+    /**
      * 도움말 표시
      */
     private void showZoneHelp(Player player) {
@@ -162,6 +187,7 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.WHITE + "/zone set <점령지이름> - 현재 위치에 점령지와 신호기 설정");
         player.sendMessage(ChatColor.WHITE + "/zone list - 점령지 목록 보기");
         player.sendMessage(ChatColor.WHITE + "/zone reload - 설정 다시 로드");
+        player.sendMessage(ChatColor.WHITE + "/zone reset - 모든 점령지의 신호기 재설치");
         player.sendMessage(ChatColor.WHITE + "/zone help - 도움말 보기");
         player.sendMessage(ChatColor.YELLOW + "점령지 이름: center, water, fire, wind, ice");
         player.sendMessage(ChatColor.GRAY + "신호기는 점령지 설정 시 자동으로 생성됩니다.");
@@ -196,6 +222,9 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             }
             if ("reload".startsWith(input)) {
                 completions.add("reload");
+            }
+            if ("reset".startsWith(input)) {
+                completions.add("reset");
             }
             if ("help".startsWith(input)) {
                 completions.add("help");

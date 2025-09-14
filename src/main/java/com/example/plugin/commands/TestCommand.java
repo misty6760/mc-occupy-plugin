@@ -55,6 +55,9 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             case "capture-time":
                 handleCaptureTime(player, args);
                 break;
+            case "recapture-time":
+                handleRecaptureTime(player, args);
+                break;
             case "help":
                 showTestHelp(player);
                 break;
@@ -146,6 +149,69 @@ public class TestCommand implements CommandExecutor, TabCompleter {
         
         player.sendMessage(ChatColor.GRAY + "복구 명령어: /test capture-time reset");
     }
+    
+    /**
+     * 재탈환 시간 처리
+     */
+    private void handleRecaptureTime(Player player, String[] args) {
+        if (args.length == 1) {
+            player.sendMessage(ChatColor.RED + "사용법: /test recapture-time <시간> 또는 /test recapture-time reset");
+            return;
+        }
+        
+        String action = args[1].toLowerCase();
+        
+        if (action.equals("reset")) {
+            resetRecaptureTime(player);
+        } else if (action.equals("status")) {
+            showRecaptureTimeStatus(player);
+        } else {
+            try {
+                int time = Integer.parseInt(action);
+                setRecaptureTime(player, time);
+            } catch (NumberFormatException e) {
+                player.sendMessage(ChatColor.RED + "올바른 숫자를 입력하세요!");
+            }
+        }
+    }
+    
+    /**
+     * 재탈환 시간 설정
+     */
+    private void setRecaptureTime(Player player, int time) {
+        if (time < 1 || time > 60) {
+            player.sendMessage(ChatColor.RED + "재탈환 시간은 1분에서 60분 사이여야 합니다!");
+            return;
+        }
+        
+        // CaptureManager의 재탈환 시간 설정
+        captureManager.setTestRecaptureTime(time);
+        
+        player.sendMessage(ChatColor.GREEN + "재탈환 시간을 " + time + "분으로 설정했습니다!");
+        player.sendMessage(ChatColor.YELLOW + "테스트 모드가 활성화되었습니다.");
+        player.sendMessage(ChatColor.GRAY + "원래대로 복구하려면: /test recapture-time reset");
+    }
+    
+    /**
+     * 재탈환 시간 원래대로 복구
+     */
+    private void resetRecaptureTime(Player player) {
+        captureManager.resetTestRecaptureTime();
+        
+        player.sendMessage(ChatColor.GREEN + "재탈환 시간을 원래대로 복구했습니다!");
+        player.sendMessage(ChatColor.YELLOW + "테스트 모드가 비활성화되었습니다.");
+    }
+    
+    /**
+     * 현재 재탈환 시간 상태 확인
+     */
+    private void showRecaptureTimeStatus(Player player) {
+        player.sendMessage(ChatColor.AQUA + "=== 재탈환 시간 상태 ===");
+        player.sendMessage(ChatColor.YELLOW + "기본 재탈환 시간:");
+        player.sendMessage(ChatColor.WHITE + "  - 기본 점령지: 10분");
+        player.sendMessage(ChatColor.WHITE + "  - 중앙 점령지: 15분");
+        player.sendMessage(ChatColor.GRAY + "현재 테스트 모드: " + (captureManager.isTestMode() ? "활성화" : "비활성화"));
+    }
 
     /**
      * 테스트 명령어 도움말 표시
@@ -160,9 +226,16 @@ public class TestCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "  /test capture-time status" + ChatColor.WHITE + " - 현재 점령 시간 확인");
         player.sendMessage("");
         
+        player.sendMessage(ChatColor.AQUA + "재탈환 시간 테스트:");
+        player.sendMessage(ChatColor.YELLOW + "  /test recapture-time <시간>" + ChatColor.WHITE + " - 재탈환 시간 설정 (분)");
+        player.sendMessage(ChatColor.YELLOW + "  /test recapture-time reset" + ChatColor.WHITE + " - 재탈환 시간 원래대로 복구");
+        player.sendMessage(ChatColor.YELLOW + "  /test recapture-time status" + ChatColor.WHITE + " - 현재 재탈환 시간 확인");
+        player.sendMessage("");
+        
         player.sendMessage(ChatColor.GRAY + "예시:");
-        player.sendMessage(ChatColor.GRAY + "  /test capture-time 10 - 점령 시간을 10초로 설정");
-        player.sendMessage(ChatColor.GRAY + "  /test capture-time reset - 원래 시간(5분)으로 복구");
+        player.sendMessage(ChatColor.WHITE + "  /test capture-time 30" + ChatColor.GRAY + " - 점령 시간을 30초로 설정");
+        player.sendMessage(ChatColor.WHITE + "  /test recapture-time 5" + ChatColor.GRAY + " - 재탈환 시간을 5분으로 설정");
+        player.sendMessage(ChatColor.WHITE + "  /test capture-time reset" + ChatColor.GRAY + " - 원래 시간으로 복구");
         player.sendMessage("");
         
         player.sendMessage(ChatColor.RED + "주의: 이 명령어는 테스트용입니다!");
@@ -179,6 +252,9 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             if ("capture-time".startsWith(input)) {
                 completions.add("capture-time");
             }
+            if ("recapture-time".startsWith(input)) {
+                completions.add("recapture-time");
+            }
             if ("help".startsWith(input)) {
                 completions.add("help");
             }
@@ -186,6 +262,19 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             return completions;
         } else if (args.length == 2 && args[0].equalsIgnoreCase("capture-time")) {
             // 두 번째 인수: capture-time 옵션
+            String input = args[1].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            if ("reset".startsWith(input)) {
+                completions.add("reset");
+            }
+            if ("status".startsWith(input)) {
+                completions.add("status");
+            }
+            
+            return completions;
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("recapture-time")) {
+            // 두 번째 인수: recapture-time 옵션
             String input = args[1].toLowerCase();
             List<String> completions = new ArrayList<>();
             

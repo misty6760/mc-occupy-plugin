@@ -7,7 +7,7 @@ zones:
       x: 0
       y: 64
       z: 0
-      radius: 2.5
+      radius: 7
       type: "CENTER"
 
    water:
@@ -15,7 +15,7 @@ zones:
       x: -8
       y: 64
       z: -8
-      radius: 2.5
+      radius: 7
       type: "WATER"
 
    fire:
@@ -23,7 +23,7 @@ zones:
       x: 8
       y: 64
       z: 8
-      radius: 2.5
+      radius: 7
       type: "FIRE"
 
    wind:
@@ -31,7 +31,7 @@ zones:
       x: -8
       y: 64
       z: 8
-      radius: 2.5
+      radius: 7
       type: "WIND"
 
    ice:
@@ -39,5 +39,5 @@ zones:
       x: 8
       y: 64
       z: -8
-      radius: 2.5
+      radius: 7
       type: "ICE"

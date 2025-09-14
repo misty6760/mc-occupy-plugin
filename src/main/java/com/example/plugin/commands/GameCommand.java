@@ -70,6 +70,9 @@ public class GameCommand implements CommandExecutor, TabCompleter {
             case "map":
                 showTestMap(player);
                 break;
+            case "info":
+                showGameInfo(player, args);
+                break;
             case "help":
                 showGameHelp(player);
                 break;
@@ -79,6 +82,145 @@ public class GameCommand implements CommandExecutor, TabCompleter {
         }
 
         return true;
+    }
+
+    /**
+     * 게임 정보 표시
+     * @param player 대상 플레이어
+     * @param args 명령어 인수
+     */
+    private void showGameInfo(Player player, String[] args) {
+        if (args.length == 1) {
+            // 전체 정보 표시
+            showAllInfo(player);
+        } else if (args.length == 2) {
+            String subCommand = args[1].toLowerCase();
+            
+            switch (subCommand) {
+                case "team":
+                    showTeamInfo(player);
+                    break;
+                case "capture":
+                    showCaptureInfo(player);
+                    break;
+                case "game":
+                    showGameInfoDetail(player);
+                    break;
+                case "help":
+                    showInfoHelp(player);
+                    break;
+                default:
+                    player.sendMessage(ChatColor.RED + "알 수 없는 명령어입니다!");
+                    showInfoHelp(player);
+                    break;
+            }
+        } else {
+            player.sendMessage(ChatColor.RED + "사용법: /game info [team|capture|game|help]");
+        }
+    }
+
+    /**
+     * 전체 정보 표시
+     * @param player 대상 플레이어
+     */
+    private void showAllInfo(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 땅따먹기 게임 정보 ===");
+        
+        // 게임 상태
+        if (captureManager.isGameActive()) {
+            player.sendMessage(ChatColor.GREEN + "게임 상태: 진행 중");
+        } else {
+            player.sendMessage(ChatColor.RED + "게임 상태: 대기 중");
+        }
+        
+        player.sendMessage("");
+        
+        // 팀 정보
+        showTeamInfo(player);
+        player.sendMessage("");
+        
+        // 점령지 정보
+        showCaptureInfo(player);
+    }
+
+    /**
+     * 팀 정보 표시
+     * @param player 대상 플레이어
+     */
+    private void showTeamInfo(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 팀 현황 ===");
+        
+        for (Team team : teamManager.getAllTeams()) {
+            player.sendMessage(team.toString());
+        }
+        
+        // 플레이어의 현재 팀
+        String currentTeam = teamManager.getPlayerTeamName(player);
+        if (currentTeam != null) {
+            player.sendMessage(ChatColor.GREEN + "내 팀: " + currentTeam);
+        } else {
+            player.sendMessage(ChatColor.GRAY + "내 팀: 없음");
+        }
+    }
+
+    /**
+     * 점령지 정보 표시
+     * @param player 대상 플레이어
+     */
+    private void showCaptureInfo(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 점령지 현황 ===");
+        
+        for (CaptureZone zone : captureManager.getAllCaptureZones()) {
+            String status;
+            if (zone.isCaptured()) {
+                status = ChatColor.GREEN + "점령됨 (" + zone.getCurrentTeam() + ")";
+            } else if (zone.isCapturing()) {
+                status = ChatColor.YELLOW + "점령 중 (" + zone.getCapturingTeam() + 
+                        " - " + zone.getCaptureProgressPercent() + "%)";
+            } else {
+                status = ChatColor.RED + "점령되지 않음";
+            }
+            
+            player.sendMessage(ChatColor.YELLOW + zone.getType().getDisplayName() + ": " + status);
+        }
+    }
+
+    /**
+     * 게임 정보 상세 표시
+     * @param player 대상 플레이어
+     */
+    private void showGameInfoDetail(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 게임 정보 ===");
+        
+        if (captureManager.isGameActive()) {
+            player.sendMessage(ChatColor.GREEN + "게임이 진행 중입니다!");
+            
+            // 승리 조건
+            player.sendMessage(ChatColor.YELLOW + "승리 조건:");
+            player.sendMessage(ChatColor.GRAY + "• 기본 점령지 3곳 점령 → 세트 보너스 1점 = 4점 승리");
+            player.sendMessage(ChatColor.GRAY + "• 중앙(2점) + 기본 2곳(2점) = 4점 승리");
+            
+            // 특수 규칙
+            player.sendMessage(ChatColor.YELLOW + "특수 규칙:");
+            player.sendMessage(ChatColor.GRAY + "• 기본 점령지 3곳 점령 시 중앙 점령 불가");
+            player.sendMessage(ChatColor.GRAY + "• 중앙 점령 시 기본 점령지 탈환 시간 15분으로 증가");
+        } else {
+            player.sendMessage(ChatColor.RED + "게임이 진행 중이 아닙니다.");
+            player.sendMessage(ChatColor.YELLOW + "게임을 시작하려면 /game start 명령어를 사용하세요.");
+        }
+    }
+
+    /**
+     * 정보 명령어 도움말 표시
+     * @param player 대상 플레이어
+     */
+    private void showInfoHelp(Player player) {
+        player.sendMessage(ChatColor.GOLD + "=== 정보 명령어 도움말 ===");
+        player.sendMessage(ChatColor.YELLOW + "/game info - 전체 게임 정보 표시");
+        player.sendMessage(ChatColor.YELLOW + "/game info team - 팀 정보 표시");
+        player.sendMessage(ChatColor.YELLOW + "/game info capture - 점령지 정보 표시");
+        player.sendMessage(ChatColor.YELLOW + "/game info game - 게임 규칙 및 상태 표시");
+        player.sendMessage(ChatColor.YELLOW + "/game info help - 이 도움말 표시");
     }
 
     /**
@@ -96,6 +238,7 @@ public class GameCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "  /game status" + ChatColor.WHITE + " - 게임 상태 및 점수 확인");
         player.sendMessage(ChatColor.YELLOW + "  /game reset" + ChatColor.WHITE + " - 게임 초기화");
         player.sendMessage(ChatColor.YELLOW + "  /game map" + ChatColor.WHITE + " - 테스트 맵 및 점령지 위치 표시");
+        player.sendMessage(ChatColor.YELLOW + "  /game info" + ChatColor.WHITE + " - 게임 정보 확인");
         player.sendMessage("");
         
         player.sendMessage(ChatColor.AQUA + "팀 관련:");
@@ -246,8 +389,15 @@ public class GameCommand implements CommandExecutor, TabCompleter {
             captureManager.stopGame();
         }
         
+        // 팀 점수 초기화
         teamManager.resetAllScores();
+        
+        // 점령지 초기화
+        captureManager.resetAllZones();
+        
         player.sendMessage(ChatColor.GREEN + "게임이 초기화되었습니다!");
+        player.sendMessage(ChatColor.YELLOW + "- 모든 팀 점수가 0으로 초기화되었습니다");
+        player.sendMessage(ChatColor.YELLOW + "- 모든 점령지가 중립 상태로 초기화되었습니다");
     }
 
     /**
@@ -327,6 +477,9 @@ public class GameCommand implements CommandExecutor, TabCompleter {
             if ("map".startsWith(input)) {
                 completions.add("map");
             }
+            if ("info".startsWith(input)) {
+                completions.add("info");
+            }
             if ("help".startsWith(input)) {
                 completions.add("help");
             }
@@ -338,6 +491,25 @@ public class GameCommand implements CommandExecutor, TabCompleter {
             if ("test".startsWith(input)) {
                 return Collections.singletonList("test");
             }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("info")) {
+            // /game info의 두 번째 인수
+            String input = args[1].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            if ("team".startsWith(input)) {
+                completions.add("team");
+            }
+            if ("capture".startsWith(input)) {
+                completions.add("capture");
+            }
+            if ("game".startsWith(input)) {
+                completions.add("game");
+            }
+            if ("help".startsWith(input)) {
+                completions.add("help");
+            }
+            
+            return completions;
         }
         
         return Collections.emptyList();
