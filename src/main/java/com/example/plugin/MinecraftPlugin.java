@@ -8,6 +8,7 @@ import com.example.plugin.tpa.TPAManager;
 import com.example.plugin.beacon.BeaconManager;
 import com.example.plugin.commands.*;
 import com.example.plugin.listeners.PlayerListener;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,45 +39,46 @@ public class MinecraftPlugin extends JavaPlugin {
         long startTime = System.currentTimeMillis();
         this.pluginStartTime = startTime;
         
-        getLogger().info(ChatColor.GOLD + "==========================================");
-        getLogger().info(ChatColor.GREEN + "🚀 땅따먹기 플러그인 활성화 시작...");
-        getLogger().info(ChatColor.YELLOW + "📦 버전: " + getDescription().getVersion());
-        getLogger().info(ChatColor.GOLD + "==========================================");
+        // CMD 콘솔에 직접 메시지 출력
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "🚀 땅따먹기 플러그인 활성화 시작...");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "📦 버전: " + getDescription().getVersion());
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
         
         try {
             instance = this;
-            getLogger().info(ChatColor.AQUA + "✅ 플러그인 인스턴스 초기화 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 플러그인 인스턴스 초기화 완료");
             
             // 매니저들 초기화
             initializeManagers();
-            getLogger().info(ChatColor.AQUA + "✅ 매니저 시스템 초기화 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 매니저 시스템 초기화 완료");
             
             // 명령어 등록
             registerCommands();
-            getLogger().info(ChatColor.AQUA + "✅ 명령어 시스템 등록 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 명령어 시스템 등록 완료");
             
             // 이벤트 리스너 등록
             registerEventListeners();
-            getLogger().info(ChatColor.AQUA + "✅ 이벤트 리스너 등록 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 이벤트 리스너 등록 완료");
             
             // 설정 파일 로드
             saveDefaultConfig();
-            getLogger().info(ChatColor.AQUA + "✅ 설정 파일 초기화 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 설정 파일 초기화 완료");
             
             long endTime = System.currentTimeMillis();
             long loadTime = endTime - startTime;
             
-            getLogger().info(ChatColor.GOLD + "==========================================");
-            getLogger().info(ChatColor.GREEN + "🎉 땅따먹기 플러그인 활성화 완료!");
-            getLogger().info(ChatColor.YELLOW + "⏱️ 로드 시간: " + loadTime + "ms");
-            getLogger().info(ChatColor.AQUA + "📝 등록된 명령어: 12개");
-            getLogger().info(ChatColor.AQUA + "🗺️ 점령지: " + captureManager.getAllCaptureZones().size() + "개");
-            getLogger().info(ChatColor.AQUA + "👥 최대 팀 수: 4개");
-            getLogger().info(ChatColor.GOLD + "==========================================");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "🎉 땅따먹기 플러그인 활성화 완료!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "⏱️ 로드 시간: " + loadTime + "ms");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "📝 등록된 명령어: 12개");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "🗺️ 점령지: " + captureManager.getAllCaptureZones().size() + "개");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "👥 최대 팀 수: 4개");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
             
         } catch (Exception e) {
-            getLogger().severe("플러그인 활성화 중 오류 발생!");
-            getLogger().severe("오류 내용: " + e.getMessage());
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "❌ 플러그인 활성화 중 오류 발생!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "❌ 오류 내용: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -85,34 +87,34 @@ public class MinecraftPlugin extends JavaPlugin {
     public void onDisable() {
         long disableStartTime = System.currentTimeMillis();
         
-        getLogger().info(ChatColor.GOLD + "==========================================");
-        getLogger().info(ChatColor.RED + "🛑 땅따먹기 플러그인 비활성화 시작...");
-        getLogger().info(ChatColor.YELLOW + "📦 버전: " + getDescription().getVersion());
-        getLogger().info(ChatColor.GOLD + "==========================================");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "🛑 땅따먹기 플러그인 비활성화 시작...");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "📦 버전: " + getDescription().getVersion());
+        Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
         
         try {
             // 게임 중단
             if (captureManager != null) {
                 captureManager.stopGame();
-                getLogger().info(ChatColor.AQUA + "✅ 진행 중인 게임 중단 완료");
+                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 진행 중인 게임 중단 완료");
             }
             
             // 모든 효과 중단
             if (effectManager != null) {
                 effectManager.stopAllEffects();
-                getLogger().info(ChatColor.AQUA + "✅ 모든 구역 효과 중단 완료");
+                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 모든 구역 효과 중단 완료");
             }
             
             // TPA 요청 정리
             if (tpaManager != null) {
                 tpaManager.clearAllRequests();
-                getLogger().info(ChatColor.AQUA + "✅ 모든 TPA 요청 정리 완료");
+                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 모든 TPA 요청 정리 완료");
             }
             
             // 신호기 색상 초기화
             if (beaconManager != null) {
                 beaconManager.resetAllBeaconColors();
-                getLogger().info(ChatColor.AQUA + "✅ 모든 신호기 색상 초기화 완료");
+                Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 모든 신호기 색상 초기화 완료");
             }
             
             // 매니저 정리
@@ -122,15 +124,15 @@ public class MinecraftPlugin extends JavaPlugin {
             exchangeManager = null;
             tpaManager = null;
             beaconManager = null;
-            getLogger().info(ChatColor.AQUA + "✅ 모든 매니저 정리 완료");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "✅ 모든 매니저 정리 완료");
             
             long disableEndTime = System.currentTimeMillis();
             long disableTime = disableEndTime - disableStartTime;
             
-            getLogger().info(ChatColor.GOLD + "==========================================");
-            getLogger().info(ChatColor.RED + "🎉 땅따먹기 플러그인 비활성화 완료!");
-            getLogger().info(ChatColor.YELLOW + "⏱️ 비활성화 시간: " + disableTime + "ms");
-            getLogger().info(ChatColor.AQUA + "📊 플러그인 통계:");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "🎉 땅따먹기 플러그인 비활성화 완료!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "⏱️ 비활성화 시간: " + disableTime + "ms");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.AQUA + "📊 플러그인 통계:");
             
             // 총 실행 시간 계산
             long totalRunTime = System.currentTimeMillis() - pluginStartTime;
@@ -145,15 +147,15 @@ public class MinecraftPlugin extends JavaPlugin {
                 runTimeText = totalRunTimeSeconds + "초";
             }
             
-            getLogger().info(ChatColor.GRAY + "  - 총 실행 시간: " + runTimeText);
-            getLogger().info(ChatColor.GRAY + "  - 메모리 사용량: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
-            getLogger().info(ChatColor.GRAY + "  - 정리된 매니저: 6개");
-            getLogger().info(ChatColor.GRAY + "  - 정리된 명령어: 12개");
-            getLogger().info(ChatColor.GOLD + "==========================================");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "  - 총 실행 시간: " + runTimeText);
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "  - 메모리 사용량: " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024 + "MB");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "  - 정리된 매니저: 6개");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GRAY + "  - 정리된 명령어: 12개");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.GOLD + "==========================================");
             
         } catch (Exception e) {
-            getLogger().severe("플러그인 비활성화 중 오류 발생!");
-            getLogger().severe("오류 내용: " + e.getMessage());
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "❌ 플러그인 비활성화 중 오류 발생!");
+            Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "❌ 오류 내용: " + e.getMessage());
             e.printStackTrace();
         }
     }

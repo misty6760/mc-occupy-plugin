@@ -105,22 +105,22 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
         zonesConfig.set(path + ".x", playerLoc.getBlockX());
         zonesConfig.set(path + ".y", playerLoc.getBlockY());
         zonesConfig.set(path + ".z", playerLoc.getBlockZ());
-        zonesConfig.set(path + ".radius", 2.5);
+        zonesConfig.set(path + ".radius", 7);
         zonesConfig.set(path + ".type", zoneType.name());
 
         try {
             zonesConfig.save(zonesFile);
             
             // 점령지 생성 (정사각형 영역)
-            CaptureZone zone = new CaptureZone(zoneName, zoneType, playerLoc, 2.5);
-            captureManager.createCaptureZone(zoneName, zoneType, playerLoc, 2.5);
+            CaptureZone zone = new CaptureZone(zoneName, zoneType, playerLoc, 7);
+            captureManager.createCaptureZone(zoneName, zoneType, playerLoc, 7);
             
             // 신호기 자동 생성
             beaconManager.createBeaconStructure(zone, player);
             
             player.sendMessage(ChatColor.GREEN + zoneName + " 점령지와 신호기를 설정했습니다!");
             player.sendMessage(ChatColor.YELLOW + "위치: " + playerLoc.getBlockX() + ", " + playerLoc.getBlockY() + ", " + playerLoc.getBlockZ());
-            player.sendMessage(ChatColor.YELLOW + "영역: " + (2.5 * 2) + "x" + (2.5 * 2) + " 정사각형 (중심에서 ±2.5블록)");
+            player.sendMessage(ChatColor.YELLOW + "영역: " + (7 * 2) + "x" + (7 * 2) + " 정사각형 (중심에서 ±7블록)");
             player.sendMessage(ChatColor.YELLOW + "신호기가 자동으로 생성되었습니다.");
         } catch (IOException e) {
             player.sendMessage(ChatColor.RED + "설정 파일 저장 중 오류가 발생했습니다.");
