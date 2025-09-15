@@ -228,7 +228,7 @@ public class MinecraftPlugin extends JavaPlugin {
         
         
         // 테스트 명령어
-        TestCommand testCommand = new TestCommand(captureManager);
+        TestCommand testCommand = new TestCommand(captureManager, teamManager);
         getCommand("test").setExecutor(testCommand);
         getCommand("test").setTabCompleter(testCommand);
     }

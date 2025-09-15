@@ -63,13 +63,13 @@ public class BeaconManager {
             return;
         }
 
-        // 색유리 위치: 신호기 위 1칸
-        Location glassLocation = beaconLocation.clone().add(0, 1, 0);
-        Block glassBlock = glassLocation.getBlock();
+        // 색유리 위치: 신호기 위 1칸 (비활성화됨)
+        // Location glassLocation = beaconLocation.clone().add(0, 1, 0);
+        // Block glassBlock = glassLocation.getBlock();
 
-        // 팀 색상에 맞는 색유리 배치
-        Material glassType = teamColors.getOrDefault(team.getColor(), Material.WHITE_STAINED_GLASS);
-        glassBlock.setType(glassType);
+        // 팀 색상에 맞는 색유리 배치 (비활성화됨)
+        // Material glassType = teamColors.getOrDefault(team.getColor(), Material.WHITE_STAINED_GLASS);
+        // glassBlock.setType(glassType);
 
         // 신호기 활성화 (필요한 경우)
         BlockState beaconState = beaconBlock.getState();
@@ -114,7 +114,7 @@ public class BeaconManager {
         // 점령지 중심 기준 Y좌표 사용
         int beaconY = center.getBlockY() - 1;  // 신호기: 중심 Y - 1
         int baseY = center.getBlockY() - 2;    // 철블럭 기초: 중심 Y - 2
-        int glassY = center.getBlockY();       // 색유리: 중심 Y
+        int glassY = center.getBlockY() + 1;   // 색유리: 중심 Y + 1 (신호기 위)
 
         // 신호기 기반 구조 생성 (3x3 철 블록)
         for (int x = -1; x <= 1; x++) {
@@ -153,7 +153,7 @@ public class BeaconManager {
         int playerY = player.getLocation().getBlockY();
         int beaconY = playerY - 2;  // 신호기: 사용자 Y - 2
         int baseY = playerY - 3;    // 철블럭 기초: 사용자 Y - 3
-        int glassY = playerY - 1;   // 색유리: 사용자 Y - 1
+        int glassY = playerY - 1;   // 색유리: 사용자 Y - 1 (신호기 위)
 
         // 신호기 기반 구조 생성 (3x3 철 블록) - 사용자 Y - 3
         for (int x = -1; x <= 1; x++) {
@@ -166,9 +166,7 @@ public class BeaconManager {
         // 신호기 배치 - 사용자 Y - 2
         Location beaconLocation = center.clone().add(0, beaconY - center.getBlockY(), 0);
         beaconLocation.getBlock().setType(Material.BEACON);
-        beaconLocations.put(zone.getName(), beaconLocation);
-
-        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y - 1
+        beaconLocations.put(zone.getName(), beaconLocation);        // 점령지 타입에 맞는 색유리 설치 - 사용자 Y - 1
         Location glassLocation = center.clone().add(0, glassY - center.getBlockY(), 0);
         Material glassType = getZoneGlassType(zone.getType());
         glassLocation.getBlock().setType(glassType);
@@ -232,49 +230,21 @@ public class BeaconManager {
      */
     public void resetAllBeaconColors() {
         for (Map.Entry<String, Location> entry : beaconLocations.entrySet()) {
-            String zoneName = entry.getKey();
             Location beaconLoc = entry.getValue();
             
             if (beaconLoc != null) {
                 World world = beaconLoc.getWorld();
                 if (world != null) {
-                    Block glassBlock = world.getBlockAt(beaconLoc.clone().add(0, 1, 0));
-                    
-                    // 점령지 이름에 따라 원래 색유리로 복원
-                    Material originalGlassType = getOriginalZoneGlassType(zoneName);
-                    glassBlock.setType(originalGlassType);
+                    // 점령지 이름에 따라 원래 색유리로 복원 (비활성화됨)
+                    // Block glassBlock = world.getBlockAt(beaconLoc.clone().add(0, 1, 0));
+                    // Material originalGlassType = getOriginalZoneGlassType(zoneName);
+                    // glassBlock.setType(originalGlassType);
                 }
             }
         }
         plugin.getLogger().info("모든 신호기 색상이 원래 점령지 색유리로 복원되었습니다.");
     }
 
-    /**
-     * 점령지 이름에 따른 원래 색유리 타입 반환
-     * @param zoneName 점령지 이름
-     * @return 원래 색유리 타입
-     */
-    private Material getOriginalZoneGlassType(String zoneName) {
-        switch (zoneName.toLowerCase()) {
-            case "center":
-            case "중앙":
-                return Material.YELLOW_STAINED_GLASS; // 중앙: 노란색
-            case "fire":
-            case "불":
-                return Material.RED_STAINED_GLASS; // 불: 빨간색
-            case "wind":
-            case "바람":
-                return Material.LIGHT_GRAY_STAINED_GLASS; // 바람: 회백색
-            case "water":
-            case "물":
-                return Material.BLUE_STAINED_GLASS; // 물: 파란색
-            case "ice":
-            case "얼음":
-                return Material.LIGHT_BLUE_STAINED_GLASS; // 얼음: 하늘색
-            default:
-                return Material.WHITE_STAINED_GLASS; // 기본값: 흰색
-        }
-    }
 
     /**
      * 특정 점령지의 신호기 구조 제거

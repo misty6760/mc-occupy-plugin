@@ -2,7 +2,7 @@
 
 ### 주의: 개인적인 활동을 위한 플러그인입니다.
 
-**v2.0.0-beta** - Paper 1.16.5용 마인크래프트 땅따먹기 게임 플러그인입니다.
+**Beta v2.0.0** - Paper 1.16.5용 마인크래프트 땅따먹기 게임 플러그인입니다.
 
 ## 플러그인 개요
 
@@ -82,10 +82,11 @@ mvn clean package
 
 ### 점령지 설정 (관리자)
 
--  `/zone set <점령지이름>` - 현재 위치에 점령지 설정
+-  `/zone set <점령지이름>` - 현재 위치에 점령지 설정 (15x15 정사각형)
 -  `/zone list` - 점령지 목록 보기
 -  `/zone reload` - 설정 다시 로드
--  `/zone reset` - 모든 점령지의 신호기 재설치
+-  `/zone reset` - 점령지 설정 상태 확인 및 좌표 초기화 (모든 점령지 설정 시)
+-  `/zone force-reset` - 모든 점령지 강제 초기화 (주의: 모든 설정 삭제)
 -  `/zone help` - 도움말 보기
 
 ### 교환 시스템
@@ -112,6 +113,9 @@ mvn clean package
 -  `/test capture-time set <시간>` - 점령 시간 설정 (초)
 -  `/test capture-time reset` - 점령 시간 원래대로 복구
 -  `/test capture-time status` - 현재 점령 시간 확인
+-  `/test recapture-time set <시간>` - 재탈환 시간 설정 (초)
+-  `/test recapture-time reset` - 재탈환 시간 원래대로 복구
+-  `/test recapture-time status` - 현재 재탈환 시간 확인
 -  `/test help` - 테스트 명령어 도움말
 
 ## 게임 플레이 가이드
@@ -152,6 +156,20 @@ mvn clean package
 -  게임 종료 후 5초 뒤 자동으로 모든 상태 초기화
 -  점령지, 팀 점수, 효과, 보스바 모두 자동 정리
 -  관리자 개입 없이 새 게임 준비 완료
+
+### 점령지 관리 시스템
+
+-  **15x15 정사각형 영역**: 더 넓은 점령지로 전략적 게임플레이 향상
+-  **자동 구조 생성**: `/zone set` 시 신호기, 철블록, 색유리 자동 설치
+-  **좌표 초기화**: `/zone reset`으로 점령지 좌표만 초기화 (크기와 타입 유지)
+-  **강제 초기화**: `/zone force-reset`으로 모든 설정 완전 삭제
+-  **Y좌표 최적화**: 색유리가 신호기 위에 올바르게 설치되도록 수정
+
+### 재탈환 보호 시스템
+
+-  **재탈환 시간**: 점령 완료 후 일정 시간 동안 재탈환 불가
+-  **테스트 명령어**: `/test recapture-time`으로 재탈환 시간 조정 가능
+-  **전략적 요소**: 점령 후 즉시 재탈환되는 것을 방지하여 전략적 게임플레이 강화
 
 ## 주요 기능
 
@@ -240,9 +258,10 @@ mvn clean package
 
 ### 점령지 설정
 
--  **동적 설정**: `/zone set <점령지이름>` 명령어로 위치 변경 가능
--  **자동 설정**: 점령지 설정 시 자동으로 구조 생성
--  **신호기 재설치**: `/zone reset` 명령어로 모든 신호기 재설치
+-  **동적 설정**: `/zone set <점령지이름>` 명령어로 위치 변경 가능 (15x15 정사각형)
+-  **자동 설정**: 점령지 설정 시 자동으로 신호기, 철블록, 색유리 구조 생성
+-  **좌표 초기화**: `/zone reset` 명령어로 점령지 좌표 초기화 (모든 점령지 설정 시)
+-  **강제 초기화**: `/zone force-reset` 명령어로 모든 점령지 강제 삭제
 -  **설정 파일**: `zones.yml`에서 점령지 위치 관리
 
 ## 프로젝트 구조
@@ -387,6 +406,15 @@ boolean debug = getConfig().getBoolean("settings.debug");
 
 # 원래 시간(5분)으로 복구
 /test capture-time reset
+
+# 재탈환 시간을 5초로 설정
+/test recapture-time set 5
+
+# 재탈환 시간 확인
+/test recapture-time status
+
+# 재탈환 시간 원래대로 복구
+/test recapture-time reset
 ```
 
 ### 점령지 관리 예시
@@ -395,11 +423,14 @@ boolean debug = getConfig().getBoolean("settings.debug");
 # 점령지 목록 확인
 /zone list
 
-# 현재 위치에 제네시스 설정
+# 현재 위치에 제네시스 설정 (15x15 정사각형)
 /zone set center
 
-# 모든 신호기 재설치
+# 점령지 좌표 초기화 (모든 점령지 설정 시)
 /zone reset
+
+# 모든 점령지 강제 초기화 (주의: 모든 설정 삭제)
+/zone force-reset
 
 # 점령지 설정 다시 로드
 /zone reload
@@ -430,6 +461,11 @@ boolean debug = getConfig().getBoolean("settings.debug");
 -  게임 종료 후 상태 초기화 문제 해결
 -  메모리 누수 및 성능 문제 해결
 -  사용되지 않는 코드 정리
+-  점령지 크기를 15x15 정사각형으로 확장
+-  신호기 Y좌표 계산 오류 수정
+-  색유리 자동 설치 문제 해결
+-  재탈환 시간 테스트 명령어 추가
+-  강제 점령지 초기화 명령어 추가
 
 ## 호환성
 
@@ -480,6 +516,6 @@ boolean debug = getConfig().getBoolean("settings.debug");
 ---
 
 **개발팀**: Misty6760  
-**최종 업데이트**: 2025년 9월 13일  
-**버전**: v2.0.0-beta  
+**최종 업데이트**: 2025년 9월 14일  
+**버전**: Beta v2.0.0  
 **상태**: 안정 버전 (베타)

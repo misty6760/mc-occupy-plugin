@@ -80,8 +80,14 @@ public class CaptureManager {
         loadZonesConfig();
         
         if (zonesConfig == null) {
-            plugin.getLogger().warning("점령지 설정 파일을 로드할 수 없습니다. 기본 설정을 사용합니다.");
-            initializeDefaultZones();
+            plugin.getLogger().warning("점령지 설정 파일을 로드할 수 없습니다.");
+            return;
+        }
+        
+        // 설정 파일에 점령지가 있는지 확인
+        if (zonesConfig.getConfigurationSection("zones") == null || 
+            zonesConfig.getConfigurationSection("zones").getKeys(false).isEmpty()) {
+            plugin.getLogger().info("설정된 점령지가 없습니다. /zone set 명령어로 점령지를 설정하세요.");
             return;
         }
         
@@ -115,32 +121,6 @@ public class CaptureManager {
         }
     }
     
-    /**
-     * 기본 점령지 설정 (설정 파일이 없을 때 사용)
-     */
-    private void initializeDefaultZones() {
-        World world = Bukkit.getWorlds().get(0);
-        
-        // 중앙 점령지 (15x15) - (0, 0)
-        createCaptureZone("center", CaptureZone.ZoneType.CENTER, 
-            new Location(world, 0, 64, 0), 7);
-        
-        // 북서쪽 - 물 (-8, -8) - 꼭짓점에서 2칸 안쪽
-        createCaptureZone("water", CaptureZone.ZoneType.WATER, 
-            new Location(world, -8, 64, -8), 7);
-        
-        // 남동쪽 - 불 (8, 8) - 꼭짓점에서 2칸 안쪽
-        createCaptureZone("fire", CaptureZone.ZoneType.FIRE, 
-            new Location(world, 8, 64, 8), 7);
-        
-        // 남서쪽 - 바람 (-8, 8) - 꼭짓점에서 2칸 안쪽
-        createCaptureZone("wind", CaptureZone.ZoneType.WIND, 
-            new Location(world, -8, 64, 8), 7);
-        
-        // 북동쪽 - 얼음 (8, -8) - 꼭짓점에서 2칸 안쪽
-        createCaptureZone("ice", CaptureZone.ZoneType.ICE, 
-            new Location(world, 8, 64, -8), 7);
-    }
     
     /**
      * 점령지 설정 파일 로드

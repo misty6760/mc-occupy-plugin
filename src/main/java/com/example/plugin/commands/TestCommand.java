@@ -1,6 +1,8 @@
 package com.example.plugin.commands;
 
 import com.example.plugin.capture.CaptureManager;
+import com.example.plugin.team.TeamManager;
+import com.example.plugin.team.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -18,16 +20,19 @@ import java.util.List;
  * /test capture-time <시간> - 점령 시간 설정 (초)
  * /test capture-time reset - 점령 시간 원래대로 복구
  * /test capture-time status - 현재 점령 시간 확인
+ * /test team <팀이름> - 게임 중 팀 변경 (기존 팀에서 자동 탈퇴 후 새 팀으로 이동)
  */
 public class TestCommand implements CommandExecutor, TabCompleter {
     private final CaptureManager captureManager;
+    private final TeamManager teamManager;
     
     // 원래 점령 시간 저장 (복구용)
     private int originalCaptureTime = 300; // 5분 (300초)
     private boolean isTestMode = false;
 
-    public TestCommand(CaptureManager captureManager) {
+    public TestCommand(CaptureManager captureManager, TeamManager teamManager) {
         this.captureManager = captureManager;
+        this.teamManager = teamManager;
     }
 
     @Override
@@ -57,6 +62,9 @@ public class TestCommand implements CommandExecutor, TabCompleter {
                 break;
             case "recapture-time":
                 handleRecaptureTime(player, args);
+                break;
+            case "team":
+                handleTeam(player, args);
                 break;
             case "help":
                 showTestHelp(player);
@@ -213,6 +221,58 @@ public class TestCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.GRAY + "현재 테스트 모드: " + (captureManager.isTestMode() ? "활성화" : "비활성화"));
     }
     
+    /**
+     * 팀 변경 명령어 처리 (게임 중 팀 변경)
+     */
+    private void handleTeam(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(ChatColor.RED + "사용법: /test team <팀이름>");
+            player.sendMessage(ChatColor.YELLOW + "사용 가능한 팀: " + String.join(", ", teamManager.getTeamNames()));
+            player.sendMessage(ChatColor.GRAY + "기존 팀에서 자동으로 탈퇴하고 새 팀으로 이동합니다.");
+            return;
+        }
+
+        String teamName = args[1];
+        Team team = teamManager.getTeam(teamName);
+
+        if (team == null) {
+            player.sendMessage(ChatColor.RED + "존재하지 않는 팀입니다!");
+            player.sendMessage(ChatColor.YELLOW + "사용 가능한 팀: " + String.join(", ", teamManager.getTeamNames()));
+            return;
+        }
+
+        // 현재 팀 확인
+        String currentTeam = teamManager.getPlayerTeamName(player);
+        
+        // 팀이 가득 찼는지 확인
+        if (team.isFull()) {
+            player.sendMessage(ChatColor.RED + teamName + " 팀이 가득 찼습니다!");
+            return;
+        }
+
+        // 같은 팀인지 확인
+        if (currentTeam != null && currentTeam.equals(teamName)) {
+            player.sendMessage(ChatColor.YELLOW + "이미 " + teamName + " 팀에 속해있습니다!");
+            return;
+        }
+
+        // 기존 팀에서 탈퇴 (있는 경우)
+        if (currentTeam != null) {
+            teamManager.removePlayerFromTeam(player);
+            player.sendMessage(ChatColor.GRAY + currentTeam + " 팀에서 탈퇴했습니다.");
+        }
+
+        // 새 팀에 가입
+        if (teamManager.assignPlayerToTeam(player, teamName)) {
+            player.sendMessage(ChatColor.GREEN + teamName + " 팀으로 변경했습니다!");
+            player.sendMessage(ChatColor.YELLOW + "팀 색상: " + team.getColor() + "■");
+            player.sendMessage(ChatColor.GRAY + "팀원 수: " + team.getMemberCount() + "/3");
+        } else {
+            player.sendMessage(ChatColor.RED + "팀 변경에 실패했습니다!");
+        }
+    }
+    
+    
 
     /**
      * 테스트 명령어 도움말 표시
@@ -233,9 +293,15 @@ public class TestCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.YELLOW + "  /test recapture-time status" + ChatColor.WHITE + " - 현재 재탈환 시간 확인");
         player.sendMessage("");
         
+        player.sendMessage(ChatColor.AQUA + "팀 변경 (게임 중):");
+        player.sendMessage(ChatColor.YELLOW + "  /test team <팀이름>" + ChatColor.WHITE + " - 게임 중 팀 변경");
+        player.sendMessage(ChatColor.GRAY + "  기존 팀에서 자동 탈퇴 후 새 팀으로 이동");
+        player.sendMessage("");
+        
         player.sendMessage(ChatColor.GRAY + "예시:");
         player.sendMessage(ChatColor.WHITE + "  /test capture-time 30" + ChatColor.GRAY + " - 점령 시간을 30초로 설정");
         player.sendMessage(ChatColor.WHITE + "  /test recapture-time 5" + ChatColor.GRAY + " - 재탈환 시간을 5분으로 설정");
+        player.sendMessage(ChatColor.WHITE + "  /test team 빨강팀" + ChatColor.GRAY + " - 빨강팀으로 변경");
         player.sendMessage(ChatColor.WHITE + "  /test capture-time reset" + ChatColor.GRAY + " - 원래 시간으로 복구");
         player.sendMessage("");
         
@@ -255,6 +321,9 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             }
             if ("recapture-time".startsWith(input)) {
                 completions.add("recapture-time");
+            }
+            if ("team".startsWith(input)) {
+                completions.add("team");
             }
             if ("help".startsWith(input)) {
                 completions.add("help");
@@ -284,6 +353,18 @@ public class TestCommand implements CommandExecutor, TabCompleter {
             }
             if ("status".startsWith(input)) {
                 completions.add("status");
+            }
+            
+            return completions;
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("team")) {
+            // 두 번째 인수: 팀 이름
+            String input = args[1].toLowerCase();
+            List<String> completions = new ArrayList<>();
+            
+            for (String teamName : teamManager.getTeamNames()) {
+                if (teamName.toLowerCase().startsWith(input)) {
+                    completions.add(teamName);
+                }
             }
             
             return completions;

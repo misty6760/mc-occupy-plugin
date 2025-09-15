@@ -72,7 +72,10 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
                 reloadZones(player);
                 break;
             case "reset":
-                resetBeacons(player);
+                resetZones(player);
+                break;
+            case "force-reset":
+                forceResetZones(player);
                 break;
             case "help":
                 showZoneHelp(player);
@@ -158,25 +161,107 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
     }
 
     /**
-     * 신호기 재설치
+     * 점령지 설정 상태 확인 및 좌표 초기화
      */
-    private void resetBeacons(Player player) {
-        player.sendMessage(ChatColor.YELLOW + "모든 점령지의 신호기를 재설치합니다...");
+    private void resetZones(Player player) {
+        player.sendMessage(ChatColor.YELLOW + "점령지 설정 상태를 확인합니다...");
         
-        int resetCount = 0;
+        // 모든 점령지가 설정되었는지 확인
+        String[] requiredZones = {"center", "water", "fire", "wind", "ice"};
+        List<String> missingZoneList = new ArrayList<>();
+        List<String> configuredZoneList = new ArrayList<>();
         
-        // 모든 점령지에 대해 신호기 재설치
-        for (CaptureZone zone : captureManager.getAllCaptureZones()) {
-            if (beaconManager != null) {
-                // 기존 신호기 제거
-                beaconManager.removeBeaconStructure(zone);
-                // 새 신호기 설치
-                beaconManager.createBeaconStructure(zone);
-                resetCount++;
+        for (String zoneName : requiredZones) {
+            if (zonesConfig.getConfigurationSection("zones." + zoneName) == null ||
+                zonesConfig.getString("zones." + zoneName + ".world") == null) {
+                missingZoneList.add(zoneName);
+            } else {
+                configuredZoneList.add(zoneName);
             }
         }
         
-        player.sendMessage(ChatColor.GREEN + "신호기 재설치 완료! (" + resetCount + "개 점령지)");
+        // 모든 점령지가 설정되어 있는지 확인
+        if (missingZoneList.isEmpty()) {
+            // 모든 점령지가 설정되어 있으면 좌표 초기화 실행
+            player.sendMessage(ChatColor.GREEN + "✅ 모든 점령지가 설정되어 있습니다. 좌표를 초기화합니다...");
+            
+            int resetCount = 0;
+            
+            // 설정 파일에서 좌표 정보만 제거 (radius와 type은 유지)
+            try {
+                for (String zoneName : configuredZoneList) {
+                    String path = "zones." + zoneName;
+                    zonesConfig.set(path + ".world", null);
+                    zonesConfig.set(path + ".x", null);
+                    zonesConfig.set(path + ".y", null);
+                    zonesConfig.set(path + ".z", null);
+                    // radius와 type은 유지
+                    resetCount++;
+                }
+                zonesConfig.save(zonesFile);
+            } catch (Exception e) {
+                player.sendMessage(ChatColor.RED + "설정 파일 저장 중 오류가 발생했습니다: " + e.getMessage());
+                return;
+            }
+            
+            // CaptureManager에서 모든 점령지 제거
+            captureManager.resetAllZones();
+            
+            player.sendMessage(ChatColor.GREEN + "점령지 좌표 초기화 완료! (" + resetCount + "개 점령지)");
+            player.sendMessage(ChatColor.YELLOW + "점령지 크기와 타입은 유지되었습니다.");
+            player.sendMessage(ChatColor.AQUA + "새로운 위치에 점령지를 설정하려면 /zone set 명령어를 사용하세요.");
+            
+        } else {
+            // 일부 점령지가 미설정이면 상태만 표시
+            player.sendMessage(ChatColor.RED + "⚠️ 모든 점령지가 설정되지 않았습니다!");
+            player.sendMessage(ChatColor.YELLOW + "좌표 초기화를 실행하려면 모든 점령지를 먼저 설정해야 합니다.");
+        }
+        
+        // 점령지 상태 요약
+        player.sendMessage(ChatColor.GOLD + "=== 점령지 설정 상태 ===");
+        
+        // 설정된 점령지 표시
+        if (!configuredZoneList.isEmpty()) {
+            player.sendMessage(ChatColor.GREEN + "✅ 설정된 점령지 (" + configuredZoneList.size() + "개):");
+            for (String zoneName : configuredZoneList) {
+                String world = zonesConfig.getString("zones." + zoneName + ".world");
+                int x = zonesConfig.getInt("zones." + zoneName + ".x");
+                int y = zonesConfig.getInt("zones." + zoneName + ".y");
+                int z = zonesConfig.getInt("zones." + zoneName + ".z");
+                player.sendMessage(ChatColor.GREEN + "  - " + zoneName + ": " + world + " " + x + ", " + y + ", " + z);
+            }
+        }
+        
+        // 미설정된 점령지 표시
+        if (!missingZoneList.isEmpty()) {
+            player.sendMessage(ChatColor.RED + "❌ 미설정된 점령지 (" + missingZoneList.size() + "개):");
+            for (String missingZone : missingZoneList) {
+                player.sendMessage(ChatColor.RED + "  - " + missingZone + " (사용법: /zone set " + missingZone + ")");
+            }
+            player.sendMessage(ChatColor.YELLOW + "모든 점령지를 설정한 후 다시 /zone reset을 실행하세요!");
+        }
+    }
+
+    /**
+     * 강제 점령지 초기화 (모든 점령지 삭제)
+     */
+    private void forceResetZones(Player player) {
+        player.sendMessage(ChatColor.RED + "⚠️ 강제 점령지 초기화를 실행합니다...");
+        
+        try {
+            // 설정 파일에서 모든 점령지 정보 제거
+            zonesConfig.set("zones", null);
+            zonesConfig.save(zonesFile);
+            
+            // CaptureManager에서 모든 점령지 제거
+            captureManager.resetAllZones();
+            
+            player.sendMessage(ChatColor.GREEN + "✅ 모든 점령지가 강제로 초기화되었습니다!");
+            player.sendMessage(ChatColor.YELLOW + "이제 /zone set 명령어로 새로운 점령지를 설정하세요.");
+            
+        } catch (Exception e) {
+            player.sendMessage(ChatColor.RED + "강제 초기화 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     /**
@@ -187,7 +272,8 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
         player.sendMessage(ChatColor.WHITE + "/zone set <점령지이름> - 현재 위치에 점령지와 신호기 설정");
         player.sendMessage(ChatColor.WHITE + "/zone list - 점령지 목록 보기");
         player.sendMessage(ChatColor.WHITE + "/zone reload - 설정 다시 로드");
-        player.sendMessage(ChatColor.WHITE + "/zone reset - 모든 점령지의 신호기 재설치");
+        player.sendMessage(ChatColor.WHITE + "/zone reset - 점령지 설정 상태 확인 및 좌표 초기화 (모든 점령지 설정 시)");
+        player.sendMessage(ChatColor.WHITE + "/zone force-reset - 모든 점령지 강제 초기화 (주의: 모든 설정 삭제)");
         player.sendMessage(ChatColor.WHITE + "/zone help - 도움말 보기");
         player.sendMessage(ChatColor.YELLOW + "점령지 이름: center, water, fire, wind, ice");
         player.sendMessage(ChatColor.GRAY + "신호기는 점령지 설정 시 자동으로 생성됩니다.");
@@ -225,6 +311,9 @@ public class ZoneCommand implements CommandExecutor, TabCompleter {
             }
             if ("reset".startsWith(input)) {
                 completions.add("reset");
+            }
+            if ("force-reset".startsWith(input)) {
+                completions.add("force-reset");
             }
             if ("help".startsWith(input)) {
                 completions.add("help");
