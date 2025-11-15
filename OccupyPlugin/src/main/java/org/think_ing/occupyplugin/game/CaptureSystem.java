@@ -125,8 +125,10 @@ public class CaptureSystem {
         double progressIncrease = playerCount;
         point.setCaptureProgress(oldProgress + progressIncrease);
         
-        // 점령 진행 중 알림 (25%, 50%, 75%)
-        sendCaptureProgressNotification(point, capturingTeam, oldProgress, false);
+        // 중앙 점령지만 진행 중 알림 (25%, 50%, 75%)
+        if (point.getName().equals(centerPointName)) {
+            sendCaptureProgressNotification(point, capturingTeam, oldProgress, false);
+        }
         
         if (point.getCaptureProgress() >= point.getCaptureTime()) {
             setPointOwner(point, capturingTeam, false);
@@ -141,8 +143,10 @@ public class CaptureSystem {
         double progressIncrease = playerCount;
         point.setCaptureProgress(oldProgress + progressIncrease);
         
-        // 재점령 진행 중 알림 (25%, 50%, 75%)
-        sendCaptureProgressNotification(point, capturingTeam, oldProgress, true);
+        // 중앙 점령지만 재점령 진행 중 알림 (25%, 50%, 75%)
+        if (point.getName().equals(centerPointName)) {
+            sendCaptureProgressNotification(point, capturingTeam, oldProgress, true);
+        }
         
         if (point.getCaptureProgress() >= point.getRecaptureTime()) {
             setPointOwner(point, capturingTeam, true);
@@ -150,7 +154,7 @@ public class CaptureSystem {
     }
     
     /**
-     * 점령 진행 중 알림 발송
+     * 점령 진행 중 알림 발송 (중앙 점령지 전용)
      * @param point 점령지
      * @param capturingTeam 점령하는 팀
      * @param oldProgress 이전 진행도
@@ -164,7 +168,7 @@ public class CaptureSystem {
         int oldPercent = (int) ((oldProgress / targetTime) * 100);
         int currentPercent = (int) ((currentProgress / targetTime) * 100);
         
-        // 25% 단위로 알림
+        // 25% 단위로 알림 (중앙 점령지만)
         int[] milestones = {25, 50, 75};
         for (int milestone : milestones) {
             if (oldPercent < milestone && currentPercent >= milestone) {
@@ -176,23 +180,12 @@ public class CaptureSystem {
                 String action = isRecapture ? "탈환" : "점령";
                 String pointName = point.getName();
                 
-                if (point.getName().equals(centerPointName)) {
-                    // 중앙 점령지는 전체 공지
-                    notificationManager.broadcastTitle(
-                            teamColor + teamName + " 팀",
-                            ChatColor.WHITE + pointName + "을(를) " + action + " 중입니다! (" + milestone + "%)",
-                            5, 30, 5
-                    );
-                } else {
-                    // 기본 점령지는 해당 지역 플레이어에게만
-                    for (Player player : point.getPlayersInZone()) {
-                        notificationManager.sendTitle(player, 
-                                teamColor + teamName + " 팀",
-                                ChatColor.WHITE + pointName + " " + action + " 중: " + milestone + "%",
-                                0, 30, 5
-                        );
-                    }
-                }
+                // 중앙 점령지는 전체 공지
+                notificationManager.broadcastTitle(
+                        teamColor + teamName + " 팀",
+                        ChatColor.WHITE + pointName + "을(를) " + action + " 중입니다! (" + milestone + "%)",
+                        5, 30, 5
+                );
                 
                 lastNotifiedProgress.put(point, milestone);
                 break;
