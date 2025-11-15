@@ -1,0 +1,94 @@
+# OccupyPlugin Configuration
+
+# 마인크래프트 /team 명령어로 관리할 팀의 이름을 적어주세요.
+# 여기에 적힌 팀들만 점령전에 참여합니다.
+participating_teams:
+  - red
+  - blue
+  - green
+  - yellow
+
+# 중앙 점령지 이름 (점수 2점, 승리 조건에 사용)
+center_point_name: "중앙"
+
+occupation_points:
+  fire:
+    name: "불"
+    text_color: "RED"
+    bar_color: "RED"
+    location: world,0,64,0
+    size: 15
+    capture_time: 300
+    recapture_time: 600
+    effects:
+      fire_resistance:
+        amplifier: 0
+  water:
+    name: "물"
+    text_color: "BLUE"
+    bar_color: "BLUE"
+    location: world,100,64,100
+    size: 15
+    capture_time: 300
+    recapture_time: 600
+    effects:
+      water_breathing:
+        amplifier: 0
+      dolphins_grace:
+        amplifier: 0
+  ice:
+    name: "얼음"
+    text_color: "AQUA"
+    bar_color: "BLUE"
+    location: world,-100,64,-100
+    size: 15
+    capture_time: 300
+    recapture_time: 600
+    debuffs:
+      slowness:
+        amplifier: 0
+  wind:
+    name: "바람"
+    text_color: "WHITE"
+    bar_color: "WHITE"
+    location: world,100,64,-100
+    size: 15
+    capture_time: 300
+    recapture_time: 600
+    effects:
+      speed:
+        amplifier: 0
+  center:
+    name: "중앙"
+    text_color: "YELLOW"
+    bar_color: "YELLOW"
+    location: world,0,64,100
+    size: 15
+    capture_time: 600
+    recapture_time: 900
+
+# 커스텀 리스폰 설정
+respawn:
+  enabled: true
+  y_coordinate: 100
+  slow_falling_duration: 200  # 10초 (20 tick = 1초)
+  slow_falling_amplifier: 0
+
+# 교환 시스템 설정
+exchange:
+  enabled: true
+  exchanges:
+    - input: LAPIS_LAZULI
+      input_amount: 64
+      output: EXPERIENCE_BOTTLE
+      output_amount: 64
+    - input: IRON_INGOT
+      input_amount: 32
+      output: BREAD
+      output_amount: 64
+
+# TPA (텔레포트 요청) 설정
+tpa:
+  enabled: true
+  cooldown_seconds: 5      # TPA 요청 쿨다운 (초)
+  expiration_seconds: 30   # TPA 요청 만료 시간 (초)

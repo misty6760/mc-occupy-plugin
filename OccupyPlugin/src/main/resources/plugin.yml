@@ -1,0 +1,18 @@
+name: OccupyPlugin
+version: '${project.version}'
+main: org.think_ing.occupyplugin.OccupyPlugin
+api-version: '1.16'
+commands:
+  occupy:
+    description: Main command for the OccupyPlugin
+    usage: /occupy <start|stop|setpoint|removepoint|teaminfo|info|test>
+    permission: occupy.admin
+  tpa:
+    description: 팀원에게 텔레포트 요청을 보냅니다
+    usage: /tpa <플레이어>
+  tpaaccept:
+    description: 텔레포트 요청을 수락합니다
+    usage: /tpaaccept
+  tpadeny:
+    description: 텔레포트 요청을 거부합니다
+    usage: /tpadeny
