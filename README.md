@@ -544,8 +544,8 @@ feature branches
 
 ## 문의 및 지원
 
--  **이슈 리포트**: [GitHub Issues](https://github.com/your-repo/issues)
--  **기능 요청**: [GitHub Discussions](https://github.com/your-repo/discussions)
+-  **이슈 리포트**: [GitHub Issues](https://github.com/misty6760/mc-occupy-plugin/issues)
+-  **기능 요청**: [GitHub Discussions](https://github.com/misty6760/mc-occupy-plugin/discussions)
 -  **버그 리포트**: 이슈 템플릿을 사용하여 상세한 정보를 제공해주세요
 
 ---
