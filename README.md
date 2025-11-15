@@ -497,15 +497,50 @@ boolean debug = getConfig().getBoolean("settings.debug");
 2. **상업적 사용 금지**: 수익을 목적으로 한 사용은 금지됩니다
 3. **수정 배포**: 수정된 버전을 배포할 때는 원본과의 차이점을 명시해주세요
 
+## 브랜치 전략
+
+이 프로젝트는 Git Flow 기반의 브랜치 전략을 사용합니다:
+
+### 주요 브랜치
+
+-  **`main`**: 최종 프로덕션 배포 버전
+   - 가장 안정적인 릴리즈 버전
+   - 직접 커밋하지 않음
+
+-  **`release`**: 릴리즈 준비 및 안정화 브랜치
+   - 테스트 완료된 안정 버전
+   - 릴리즈 전 최종 검증
+   - 버그 수정 및 문서화 작업
+
+-  **`develop`**: 활발한 개발 작업 브랜치
+   - 새로운 기능 개발
+   - 버그 수정
+   - 코드 개선
+
+### 작업 흐름
+
+```
+develop → release → main
+  ↓
+feature branches
+```
+
+1. **개발**: `develop` 브랜치에서 작업
+2. **기능 개발**: `feature/*` 브랜치 생성 → 개발 → `develop`에 병합
+3. **릴리즈 준비**: `develop` → `release` 브랜치로 병합
+4. **최종 배포**: `release` → `main` 브랜치로 병합
+
 ## 기여하기
 
 이 프로젝트에 기여하고 싶으시다면:
 
 1. 이 저장소를 포크하세요
-2. 새로운 기능 브랜치를 생성하세요 (`git checkout -b feature/AmazingFeature`)
+2. `develop` 브랜치를 기반으로 새로운 기능 브랜치를 생성하세요
+   - `git checkout develop`
+   - `git checkout -b feature/AmazingFeature`
 3. 변경사항을 커밋하세요 (`git commit -m 'Add some AmazingFeature'`)
 4. 브랜치에 푸시하세요 (`git push origin feature/AmazingFeature`)
-5. Pull Request를 생성하세요
+5. `develop` 브랜치로 Pull Request를 생성하세요
 
 ## 문의 및 지원
 
