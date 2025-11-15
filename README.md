@@ -497,20 +497,53 @@ boolean debug = getConfig().getBoolean("settings.debug");
 2. **상업적 사용 금지**: 수익을 목적으로 한 사용은 금지됩니다
 3. **수정 배포**: 수정된 버전을 배포할 때는 원본과의 차이점을 명시해주세요
 
+## 브랜치 전략
+
+이 프로젝트는 간소화된 2-브랜치 전략을 사용합니다:
+
+### 주요 브랜치
+
+-  **`develop`**: 개발 브랜치 (기본 브랜치)
+   - 새로운 기능 개발
+   - 버그 수정 및 개선
+   - 활발한 개발 작업
+   - 모든 커밋은 여기로
+
+-  **`release`**: 출시 브랜치
+   - 안정화된 릴리즈 버전
+   - 테스트 완료 후 배포용
+   - jar 파일 배포는 이 브랜치에서
+   - GitHub Release 태그
+
+### 작업 흐름
+
+```
+develop (개발) → release (출시)
+   ↓
+feature/* (선택적)
+```
+
+1. **개발**: `develop` 브랜치에서 직접 작업
+2. **기능 개발** (선택): 복잡한 기능은 `feature/*` 브랜치 → `develop` 병합
+3. **출시**: 안정화된 `develop` → `release` 브랜치로 병합
+4. **릴리즈**: `release` 브랜치에 태그 생성 및 jar 배포
+
 ## 기여하기
 
 이 프로젝트에 기여하고 싶으시다면:
 
 1. 이 저장소를 포크하세요
-2. 새로운 기능 브랜치를 생성하세요 (`git checkout -b feature/AmazingFeature`)
+2. `develop` 브랜치를 기반으로 새로운 기능 브랜치를 생성하세요
+   - `git checkout develop`
+   - `git checkout -b feature/AmazingFeature`
 3. 변경사항을 커밋하세요 (`git commit -m 'Add some AmazingFeature'`)
 4. 브랜치에 푸시하세요 (`git push origin feature/AmazingFeature`)
-5. Pull Request를 생성하세요
+5. `develop` 브랜치로 Pull Request를 생성하세요
 
 ## 문의 및 지원
 
--  **이슈 리포트**: [GitHub Issues](https://github.com/your-repo/issues)
--  **기능 요청**: [GitHub Discussions](https://github.com/your-repo/discussions)
+-  **이슈 리포트**: [GitHub Issues](https://github.com/misty6760/mc-occupy-plugin/issues)
+-  **기능 요청**: [GitHub Discussions](https://github.com/misty6760/mc-occupy-plugin/discussions)
 -  **버그 리포트**: 이슈 템플릿을 사용하여 상세한 정보를 제공해주세요
 
 ---
