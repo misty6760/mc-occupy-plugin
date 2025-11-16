@@ -1,495 +1,434 @@
-# LandCapturePlugin
+# OccupyPlugin (점령 플러그인)
 
-### 주의: 개인적인 활동을 위한 플러그인입니다.
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.16.5-brightgreen.svg)](https://www.minecraft.net/)
+[![Java](https://img.shields.io/badge/Java-16-orange.svg)](https://www.oracle.com/java/)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-blue.svg)](LICENSE)
 
-**Beta v2.0.0** - Paper 1.16.5용 마인크래프트 땅따먹기 게임 플러그인입니다.
+> **주의**: 개인적인 활동을 위한 플러그인입니다.
 
-## 플러그인 개요
+**Minecraft 1.16.5 Paper** 서버를 위한 팀 기반 점령전 게임 플러그인입니다.
 
-**LandCapturePlugin**은 팀 기반 영토 점령 게임을 위한 종합적인 마인크래프트 플러그인입니다. 플레이어들은 팀을 구성하여 다양한 점령지를 두고 전략적인 경쟁을 펼칩니다.
+## 📋 목차
 
-## 게임 소개
+- [게임 소개](#-게임-소개)
+- [주요 기능](#-주요-기능)
+- [설치 방법](#-설치-방법)
+- [명령어](#-명령어)
+- [게임 플레이](#-게임-플레이)
+- [개발 환경](#-개발-환경)
+- [프로젝트 구조](#-프로젝트-구조)
+- [브랜치 전략](#-브랜치-전략)
+- [라이선스](#-라이선스)
 
-땅따먹기 게임은 3-4팀이 5개의 점령지를 두고 경쟁하는 전략 게임입니다.
+## 🎮 게임 소개
+
+**OccupyPlugin**은 3-4팀이 5개의 점령지를 두고 경쟁하는 전략 기반 팀 게임입니다.
 
 ### 게임 맵
 
--  **크기**: 3600×3600 (-1800~1800)
--  **점령지 5곳**: 아틀란스(물), 이그니스(불), 크라이오시스(얼음), 사이클론즈(바람), 제네시스(중앙)
--  **점령 구역**: 정사각형 영역 (15x15, 중심에서 ±7.5블록)
+- **크기**: 3600×3600 블록 (-1800 ~ 1800)
+- **점령지**: 5곳 (기본 4곳 + 중앙 1곳)
+- **점령 구역**: 정사각형 영역 (15×15 블록)
+
+### 점령지 목록
+
+| 점령지 | 타입 | 색상 | 효과 |
+|--------|------|------|------|
+| **제네시스** | 중앙 | 노란색 | 2점 (승리 조건) |
+| **이그니스** | 불 | 빨간색 | 화염 저항 |
+| **아틀란스** | 물 | 파란색 | 수중 호흡 + 돌고래의 가호 |
+| **크라이오시스** | 얼음 | 하늘색 | 적 구속 (아군 면역) |
+| **사이클론즈** | 바람 | 회색 | 신속 |
 
 ### 팀 시스템
 
--  **3-4팀**, 각 팀당 **3명**
--  팀원 간 `/tpa` 사용 가능
--  실시간 스코어보드로 팀별 점수 확인
+- **3-4팀**, 각 팀당 **3명**
+- 팀원 간 `/tpa` 텔레포트 가능
+- 실시간 스코어보드로 점수 확인
 
 ### 점령 시스템
 
--  **기본 점령지** (아틀란스, 이그니스, 크라이오시스, 사이클론즈): 점령 5분, 탈환 10분
--  **중앙 점령지** (제네시스): 점령 10분, 탈환 15분
--  **특수 규칙**: 기본 3곳 점령 시 중앙 점령 불가
--  **고착 상태**: 여러 팀이 점령지에 있으면 점령 시간 정지
--  **정사각형 영역**: 더 직관적이고 예측 가능한 점령지 계산
--  **알림 시스템**: 기본 점령지 점령 시 채팅창 알림 없음 (중앙 점령지만 알림)
+- **기본 점령지**: 점령 5분, 탈환 10분
+- **중앙 점령지**: 점령 10분, 탈환 15분
+- **특수 규칙**: 한 팀이 기본 점령지 3곳을 점령하면 중앙 점령 불가
+- **고착 상태**: 여러 팀이 동시에 점령지에 있으면 점령 시간 정지
 
 ### 승리 조건
 
--  **방법 1**: 기본 점령지 3곳 점령 → 세트 보너스 1점 = 4점 승리
--  **방법 2**: 중앙(2점) + 기본 2곳(2점) = 4점 승리
-
-## 개발 환경
-
--  **Java**: JDK 8 이상
--  **Maven**: 3.6 이상
--  **Minecraft**: 1.16.5 이상
--  **Paper API**: 1.16.5-R0.1-SNAPSHOT
-
-## 빌드 방법
-
-```bash
-# 플러그인 빌드
-mvn clean package
-
-# 빌드된 JAR 파일은 target/ 폴더에 생성됩니다
-```
-
-## 설치 방법
-
-1. 빌드된 JAR 파일을 서버의 `plugins` 폴더에 복사
-2. 서버 재시작
-3. 플러그인이 자동으로 로드됩니다
-
-## 사용법
-
-### 기본 명령어
-
--  `/join <팀이름>` - 팀에 가입
--  `/leave` - 팀에서 탈퇴
--  `/team` - 팀 정보 확인
--  `/team rename <기존이름> <새이름>` - 팀 이름 변경 (관리자)
-
-### 게임 관리
-
--  `/game start` - 게임 시작 (관리자)
--  `/game start test` - 테스트 게임 시작 (관리자)
--  `/game stop` - 게임 중단 (관리자)
--  `/game status` - 게임 상태 확인
--  `/game map` - 테스트 맵 표시 (클릭으로 텔레포트)
--  `/game info` - 게임 정보 확인 (팀, 점령지, 게임 규칙)
--  `/game help` - 게임 명령어 도움말
--  `/capture` - 점령지 정보 확인
-
-### 점령지 설정 (관리자)
-
--  `/zone set <점령지이름>` - 현재 위치에 점령지 설정 (15x15 정사각형)
--  `/zone list` - 점령지 목록 보기
--  `/zone reload` - 설정 다시 로드
--  `/zone reset` - 점령지 설정 상태 확인 및 좌표 초기화 (모든 점령지 설정 시)
--  `/zone force-reset` - 모든 점령지 강제 초기화 (주의: 모든 설정 삭제)
--  `/zone help` - 도움말 보기
-
-### 교환 시스템
-
--  `/exchange` - 교환 가능한 아이템 목록
--  `/exchange info` - 내가 교환할 수 있는 아이템 확인
--  왼손에 아이템을 들고 우클릭하여 교환
-
-### 교환 가능한 아이템
-
--  **청금석 64개** → 경험치 병 64개
--  **철 32개** → 빵 64개
-
-### TPA 시스템 (팀원 전용)
-
--  `/tpa <플레이어>` - 팀원에게 TPA 요청 보내기
--  `/tpaccept` - TPA 요청 수락
--  `/tpdeny` - TPA 요청 거부
--  `/tpcancel` - TPA 요청 취소
--  `/tpastatus` - TPA 상태 확인
-
-### 테스트 명령어 (관리자)
-
--  `/test capture-time set <시간>` - 점령 시간 설정 (초)
--  `/test capture-time reset` - 점령 시간 원래대로 복구
--  `/test capture-time status` - 현재 점령 시간 확인
--  `/test recapture-time set <시간>` - 재탈환 시간 설정 (초)
--  `/test recapture-time reset` - 재탈환 시간 원래대로 복구
--  `/test recapture-time status` - 현재 재탈환 시간 확인
--  `/test help` - 테스트 명령어 도움말
-
-## 게임 플레이 가이드
-
-### 점령 상태 표시
-
--  **하나의 팀만 있을 때**: 초록색으로 퍼센트 + 남은 시간 표시
-   예: `불: 45% (2:30)` - 2분 30초 남음
--  **여러 팀이 있을 때**: 노란색으로 퍼센트 + "(정지)" 표시
-   예: `불: 45% (정지)` - 시간 정지됨
--  **점령 완료**: `점령됨!` 표시
-
-### 실시간 스코어보드
-
--  게임 중 오른쪽 사이드바에 팀별 점수 실시간 표시
--  점수 높은 순으로 자동 정렬
--  각 팀별 고유 색상으로 구분 표시
+- **방법 1**: 기본 점령지 3곳 점령 → 세트 보너스 1점 = **4점 승리**
+- **방법 2**: 중앙(2점) + 기본 2곳(2점) = **4점 승리**
 
 ### 알림 시스템
 
--  **기본 점령지 점령**: 채팅창 알림 없음 (액션바와 타이틀만 표시)
--  **중앙 점령지 점령**: 모든 플레이어에게 채팅창 알림 + 타이틀
--  **점령 완료**: `"이그니스 지역 점령 완료!"` 타이틀 (점령한 팀에게만)
--  **점령지 위험**: `"점령지 뺏기는 중!"` 타이틀 (점령 중인 팀에게만)
--  **점령지 상실**: `"점령지 점령됨!"` 타이틀 (기존 점령 팀에게만)
--  **고착 상태**: 제네시스에 여러 팀이 있을 때 보스바에 "고착 상태!" 표시
+- **기본 점령지**: 점령 완료 시에만 전체 알림 (진행률 알림 없음)
+- **중앙 점령지**: 25%, 50%, 75% 진행률 알림 + 점령 완료 알림
+- **점령 완료**: 전체 플레이어에게 타이틀 알림
+- **고착 상태**: 보스바에 "고착 상태!" 표시
 
-### 점령지 색상
+## ✨ 주요 기능
 
--  **제네시스(중앙)**: 노란색 (YELLOW)
--  **이그니스(불)**: 빨간색 (RED)
--  **아틀란스(물)**: 파란색 (BLUE)
--  **사이클론즈(바람)**: 회색 (GRAY)
--  **크라이오시스(얼음)**: 하늘색 (AQUA)
+### 🎯 점령 시스템
 
-### 자동 게임 초기화
+- **5개 점령지** (정사각형 15×15 영역)
+- **실시간 점령 진행률** 표시 (액션바)
+- **자동 신호기 설치** (색유리 + 신호기 + 철블록)
+- **점령 상태 시각화** (팀 색상별 유리 블록)
 
--  게임 종료 후 5초 뒤 자동으로 모든 상태 초기화
--  점령지, 팀 점수, 효과, 보스바 모두 자동 정리
--  관리자 개입 없이 새 게임 준비 완료
+### 👥 팀 관리
 
-### 점령지 관리 시스템
+- **4개 팀** (빨강, 파랑, 초록, 노랑)
+- **팀원 제한**: 각 팀당 최대 3명
+- **팀 밸런스**: 자동 인원 제한
+- **실시간 스코어보드**: 사이드바에 팀별 점수 표시
 
--  **15x15 정사각형 영역**: 더 넓은 점령지로 전략적 게임플레이 향상
--  **자동 구조 생성**: `/zone set` 시 신호기, 철블록, 색유리 자동 설치
--  **좌표 초기화**: `/zone reset`으로 점령지 좌표만 초기화 (크기와 타입 유지)
--  **강제 초기화**: `/zone force-reset`으로 모든 설정 완전 삭제
--  **Y좌표 최적화**: 색유리가 신호기 위에 올바르게 설치되도록 수정
+### 🎁 효과 시스템
 
-### 재탈환 보호 시스템
+점령지를 소유한 팀의 모든 플레이어에게 버프 적용:
 
--  **재탈환 시간**: 점령 완료 후 일정 시간 동안 재탈환 불가
--  **테스트 명령어**: `/test recapture-time`으로 재탈환 시간 조정 가능
--  **전략적 요소**: 점령 후 즉시 재탈환되는 것을 방지하여 전략적 게임플레이 강화
+- **이그니스 (불)**: 화염 저항 + 파티클
+- **아틀란스 (물)**: 수중 호흡 + 돌고래의 가호 + 파티클
+- **크라이오시스 (얼음)**: 적에게 구속 효과 (아군 면역) + 파티클
+- **사이클론즈 (바람)**: 신속 + 파티클
 
-## 주요 기능
+### 💎 교환 시스템
 
-### 팀 시스템
+왼손에 아이템을 들고 우클릭하여 교환:
 
--  4개 팀 (빨강, 파랑, 초록, 노랑)
--  각 팀당 최대 3명
--  팀원 간 TPA 사용 가능
--  팀 이름 변경 가능 (관리자)
+- **청금석 64개** → 경험치 병 64개
+- **철괴 32개** → 빵 64개
 
-### 점령 시스템
+### 🔄 TPA 시스템
 
--  5개 점령지 (아틀란스, 이그니스, 크라이오시스, 사이클론즈, 제네시스)
--  실시간 점령 진행률 표시
--  점령 완료 시 효과 적용
--  정사각형 영역으로 직관적인 점령지 계산
--  기본 점령지 점령 시 채팅창 알림 없음
+- **팀원 전용**: 같은 팀 플레이어끼리만 텔레포트 가능
+- **요청/수락/거부**: 간단한 명령어로 관리
+- **자동 만료**: 60초 후 요청 자동 취소
 
-### 효과 시스템
+### 🏁 자동 리스폰
 
--  **이그니스(불)**: 화염 저항 효과 + 파티클 효과
--  **아틀란스(물)**: 수중 호흡 + 돌고래의 가호 효과 + 파티클 효과
--  **크라이오시스(얼음)**: 적에게 구속 효과 + 아군 면역 + 파티클 효과
--  **사이클론즈(바람)**: 신속 효과 + 파티클 효과
--  **제네시스(중앙)**: 전장 환경
+- **팀 스폰 설정 가능**: 각 팀별 리스폰 위치 지정
+- **게임 중 자동 적용**: 죽으면 팀 스폰 위치로 리스폰
 
-### 크라이오시스 지역 특수 효과
+### 🎨 UI 시스템
 
--  미점령 또는 상대 팀 점령 시 구속 1 디버프 자동 적용
--  아군은 면역, 상대방에게만 디버프 적용
--  전략적 게임플레이 요소 추가
+- **액션바**: 플레이어가 있는 점령지 상태 실시간 표시
+- **보스바**: 중앙 점령지(제네시스) 상태 표시
+- **스코어보드**: 팀별 점수 실시간 업데이트 (사이드바)
+- **타이틀**: 점령 완료/상실 알림
 
-### UI 시스템
+## 📦 설치 방법
 
--  **액션바**: 플레이어가 있는 점령지의 실시간 상태 표시 (1초마다 업데이트)
--  **보스바**: 제네시스 상태 (모든 플레이어에게 표시, 고착 상태 감지)
--  **스코어보드**: 팀별 점수 실시간 표시 (사이드바)
--  **타이틀**: 점령 완료/상실 알림
--  **색상 코딩**: 점령지별 고유 색상으로 구분
--  **고착 상태**: 제네시스에 여러 팀이 있을 때 빨간색 "고착 상태!" 표시
+### 요구사항
+
+- **Minecraft**: 1.16.5
+- **서버**: Paper/Spigot 1.16.5 이상
+- **Java**: JDK 16 이상
+
+### 빌드
+
+```bash
+# 저장소 클론
+git clone https://github.com/misty6760/mc-occupy-plugin.git
+cd mc-occupy-plugin
+
+# 빌드
+cd OccupyPlugin
+mvn clean package
+
+# 빌드된 JAR 파일 위치
+# target/OccupyPlugin-1.0-SNAPSHOT.jar
+```
+
+### 설치
+
+1. 빌드된 `OccupyPlugin-1.0-SNAPSHOT.jar` 파일을 서버의 `plugins/` 폴더에 복사
+2. 서버 재시작
+3. 플러그인 자동 로드 확인
+
+## 📝 명령어
+
+### 게임 관리 (관리자)
+
+```
+/occupy start              - 게임 시작
+/occupy stop               - 게임 중단
+/occupy test start         - 테스트 모드로 게임 시작 (점령 시간 단축)
+/occupy info               - 게임 정보 보기
+/occupy teaminfo           - 팀 정보 보기
+```
+
+### 점령지 설정 (관리자)
+
+```
+/occupy setpoint <이름>    - 현재 위치에 점령지 설정 (15x15 정사각형, 신호기 자동 설치)
+/occupy removepoint <이름> - 점령지 제거
+```
+
+**점령지 이름 목록**:
+- `제네시스` (중앙)
+- `이그니스` (불)
+- `아틀란스` (물)
+- `크라이오시스` (얼음)
+- `사이클론즈` (바람)
+
+### TPA 명령어 (플레이어)
+
+```
+/tpa <플레이어>            - 팀원에게 텔레포트 요청
+/tpaaccept                - 텔레포트 요청 수락
+/tpadeny                  - 텔레포트 요청 거부
+```
 
 ### 교환 시스템
 
--  왼손 아이템으로 교환
--  철/청금석을 경험치/식량으로 교환
--  인벤토리 공간 자동 확인
-
-## 성능 개선
-
-### 메모리 최적화
-
--  TabCompleter 메모리 사용량 **60-80% 감소**
--  팀 검색 속도 **30-40% 향상**
--  전체 메모리 사용량 **30% 감소**
-
-### 실행 속도
-
--  명령어 처리 **2-3배 빠른 응답 속도**
--  게임 로직 최적화
--  실시간 스코어보드 업데이트
-
-## 테스트 맵 설정
-
-### 맵 구성 (0,0 중심 20x20 정사각형)
-
--  **제네시스(중앙)**: (0, 0) - 중심 점령지 (5x5)
--  **아틀란스(물)**: (-8, -8) - 북서쪽 점령지 (5x5)
--  **이그니스(불)**: (8, 8) - 남동쪽 점령지 (5x5)
--  **사이클론즈(바람)**: (-8, 8) - 남서쪽 점령지 (5x5)
--  **크라이오시스(얼음)**: (8, -8) - 북동쪽 점령지 (5x5)
-
-### 맵 확인 명령어
-
--  `/game map` - 점령지 위치와 상태 확인 (클릭으로 텔레포트)
-
-### 맵 레이아웃
-
 ```
-    북동쪽(크라이오시스)     북서쪽(아틀란스)
-    (8,-8)              (-8,-8)
-           제네시스(중심)
-           (0,0)
-    남동쪽(이그니스)     남서쪽(사이클론즈)
-    (8,8)              (-8,8)
+왼손에 교환할 아이템을 들고 우클릭
 ```
 
-### 점령지 설정
+## 🎯 게임 플레이
 
--  **동적 설정**: `/zone set <점령지이름>` 명령어로 위치 변경 가능 (15x15 정사각형)
--  **자동 설정**: 점령지 설정 시 자동으로 신호기, 철블록, 색유리 구조 생성
--  **좌표 초기화**: `/zone reset` 명령어로 점령지 좌표 초기화 (모든 점령지 설정 시)
--  **강제 초기화**: `/zone force-reset` 명령어로 모든 점령지 강제 삭제
--  **설정 파일**: `zones.yml`에서 점령지 위치 관리
+### 게임 시작 전 준비
 
-## 프로젝트 구조
+1. **팀 설정**: 마인크래프트 기본 팀 명령어로 4개 팀 생성
+   ```
+   /team add red "빨강팀"
+   /team add blue "파랑팀"
+   /team add green "초록팀"
+   /team add yellow "노랑팀"
+   ```
+
+2. **팀 색상 설정**:
+   ```
+   /team modify red color red
+   /team modify blue color blue
+   /team modify green color green
+   /team modify yellow color yellow
+   ```
+
+3. **팀 가입**: 각 플레이어를 팀에 배정
+   ```
+   /team join red <플레이어>
+   /team join blue <플레이어>
+   ```
+
+4. **점령지 설정**: 5개 점령지 위치 설정
+   ```
+   /occupy setpoint 제네시스
+   /occupy setpoint 이그니스
+   /occupy setpoint 아틀란스
+   /occupy setpoint 크라이오시스
+   /occupy setpoint 사이클론즈
+   ```
+
+5. **게임 시작**:
+   ```
+   /occupy start
+   ```
+
+### 점령 진행
+
+- **점령지 진입**: 15×15 정사각형 영역 안으로 이동
+- **점령 진행**: 액션바에 실시간 진행률 표시
+- **점령 완료**: 타이틀로 알림, 팀 색상으로 신호기 유리 변경
+- **효과 획득**: 점령한 점령지에 따라 버프 자동 적용
+
+### 점령 상태 표시 (액션바)
+
+- **초록색**: 점령 진행 중 (`제네시스: 45% (2:30)` - 2분 30초 남음)
+- **노란색**: 고착 상태 (`제네시스: 45% (정지)` - 여러 팀이 동시에 있음)
+- **완료**: `제네시스: 점령됨!`
+
+### 전략 팁
+
+1. **기본 3개 점령**: 기본 점령지 3곳을 빠르게 점령하면 세트 보너스로 승리
+2. **중앙 점령**: 중앙은 2점이므로 전략적으로 중요
+3. **팀 협력**: `/tpa`로 팀원끼리 이동하여 점령지 방어/공격
+4. **교환 시스템**: 청금석/철을 경험치/식량으로 교환하여 생존력 향상
+
+### 테스트 모드
+
+빠른 테스트를 위해 점령 시간을 단축:
 
 ```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/example/plugin/
-│   │       ├── MinecraftPlugin.java          # 메인 플러그인 클래스
-│   │       ├── team/                         # 팀 시스템
-│   │       │   ├── Team.java
-│   │       │   └── TeamManager.java
-│   │       ├── capture/                      # 점령 시스템
-│   │       │   ├── CaptureZone.java
-│   │       │   └── CaptureManager.java
-│   │       ├── effects/                      # 점령지 효과
-│   │       │   └── ZoneEffectManager.java
-│   │       ├── exchange/                     # 교환 시스템
-│   │       │   └── ExchangeManager.java
-│   │       ├── tpa/                          # TPA 시스템
-│   │       │   └── TPAManager.java
-│   │       ├── commands/                     # 명령어들
-│   │       │   ├── TeamCommand.java
-│   │       │   ├── JoinCommand.java
-│   │       │   ├── LeaveCommand.java
-│   │       │   ├── GameCommand.java
-│   │       │   ├── CaptureCommand.java
-│   │       │   ├── ExchangeCommand.java
-│   │       │   ├── InfoCommand.java
-│   │       │   ├── ZoneCommand.java
-│   │       │   └── TestCommand.java
-│   │       └── listeners/                    # 이벤트 리스너
-│   │           └── PlayerListener.java
-│   └── resources/
-│       ├── plugin.yml                       # 플러그인 메타데이터
-│       ├── config.yml                       # 설정 파일
-│       └── zones.yml                        # 점령지 설정 파일
-├── pom.xml                                  # Maven 설정
-└── README.md
+/occupy test start
 ```
 
-## 설정
+- **기본 점령지**: 1분 (정상: 5분)
+- **중앙 점령지**: 2분 (정상: 10분)
 
-### config.yml
+## 🛠 개발 환경
 
-```yaml
-settings:
-   enabled: true
-   debug: false
-   messages:
-      prefix: "&8[&6플러그인&8] &r"
-      no-permission: "&c권한이 없습니다!"
-      player-only: "&c이 명령어는 플레이어만 사용할 수 있습니다!"
+### 기술 스택
+
+- **언어**: Java 16
+- **빌드 도구**: Apache Maven 3.6+
+- **Minecraft API**: Paper 1.16.5-R0.1-SNAPSHOT
+- **IDE**: Visual Studio Code / IntelliJ IDEA
+
+### 빌드 설정 (pom.xml)
+
+```xml
+<properties>
+    <java.version>16</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>com.destroystokyo.paper</groupId>
+        <artifactId>paper-api</artifactId>
+        <version>1.16.5-R0.1-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
 ```
 
-### zones.yml
-
-```yaml
-zones:
-   center:
-      world: world
-      x: 0
-      y: 64
-      z: 0
-      radius: 2.5
-      type: CENTER
-   water:
-      world: world
-      x: -8
-      y: 64
-      z: -8
-      radius: 2.5
-      type: WATER
-```
-
-## 개발 가이드
-
-### 새로운 명령어 추가
-
-1. `src/main/java/com/example/plugin/commands/` 폴더에 명령어 클래스 생성
-2. `MinecraftPlugin.java`의 `registerCommands()` 메서드에서 등록
-3. `plugin.yml`에 명령어 정보 추가
-
-### 새로운 이벤트 리스너 추가
-
-1. `src/main/java/com/example/plugin/listeners/` 폴더에 리스너 클래스 생성
-2. `MinecraftPlugin.java`의 `registerEventListeners()` 메서드에서 등록
-
-### 설정 파일 사용
-
-```java
-// config.yml에서 값 읽기
-String message = getConfig().getString("settings.messages.prefix");
-boolean debug = getConfig().getBoolean("settings.debug");
-```
-
-## 사용 예시
-
-### 팀 이름 변경 예시
+### 개발 명령어
 
 ```bash
-# 기본 팀 이름 확인
-/team
+# 컴파일
+mvn clean compile
 
-# 팀 이름 변경 (관리자)
-/team rename 빨강팀 드래곤팀
-/team rename 파랑팀 아이스팀
-/team rename 초록팀 네이처팀
-/team rename 노랑팀 라이트팀
+# 패키징
+mvn clean package
 
-# 변경된 팀 이름 확인
-/team
+# 테스트
+mvn test
 ```
 
-### 게임 시작 예시
+## 📁 프로젝트 구조
 
-```bash
-# 테스트 게임 시작
-/game start test
-
-# 팀에 가입
-/join 드래곤팀
-
-# 게임 정보 확인
-/game info
-
-# 점령지 확인
-/game map
-
-# 점령지에 이동하여 점령 시작
+```
+OccupyPlugin/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   └── org/
+│   │   │       └── think_ing/
+│   │   │           └── occupyplugin/
+│   │   │               ├── OccupyPlugin.java              # 메인 플러그인 클래스
+│   │   │               ├── commands/                       # 명령어 시스템
+│   │   │               │   ├── CommandManager.java        # 명령어 라우터
+│   │   │               │   ├── SubCommand.java            # 명령어 인터페이스
+│   │   │               │   ├── TabCompleteManager.java    # 자동완성 관리자
+│   │   │               │   └── subcommands/               # 개별 명령어
+│   │   │               │       ├── StartCommand.java      # 게임 시작
+│   │   │               │       ├── StopCommand.java       # 게임 중단
+│   │   │               │       ├── SetPointCommand.java   # 점령지 설정
+│   │   │               │       ├── RemovePointCommand.java # 점령지 제거
+│   │   │               │       ├── TeamInfoCommand.java   # 팀 정보
+│   │   │               │       ├── InfoCommand.java       # 게임 정보
+│   │   │               │       └── TestCommand.java       # 테스트 모드
+│   │   │               ├── config/                        # 설정 관리
+│   │   │               │   └── TeamConfigManager.java     # 팀 설정
+│   │   │               ├── display/                       # UI 시스템
+│   │   │               │   ├── BossBarManager.java        # 보스바 관리
+│   │   │               │   ├── NotificationManager.java   # 알림 관리
+│   │   │               │   └── ScoreboardManager.java     # 스코어보드 관리
+│   │   │               ├── events/                        # 이벤트 리스너
+│   │   │               │   ├── TeamListener.java          # 팀 이벤트
+│   │   │               │   ├── ExchangeListener.java      # 교환 이벤트
+│   │   │               │   └── RespawnListener.java       # 리스폰 이벤트
+│   │   │               ├── game/                          # 게임 로직
+│   │   │               │   ├── GameManager.java           # 게임 관리자
+│   │   │               │   ├── OccupationPoint.java       # 점령지 모델
+│   │   │               │   ├── ConfigLoader.java          # 설정 로더
+│   │   │               │   ├── CaptureSystem.java         # 점령 시스템
+│   │   │               │   ├── BeaconManager.java         # 신호기 관리
+│   │   │               │   ├── EffectManager.java         # 효과 관리
+│   │   │               │   ├── ScoreManager.java          # 점수 관리
+│   │   │               │   └── VictoryChecker.java        # 승리 조건 체크
+│   │   │               └── tpa/                           # TPA 시스템
+│   │   │                   ├── TPAManager.java            # TPA 관리자
+│   │   │                   ├── TPARequest.java            # TPA 요청 모델
+│   │   │                   ├── TPACommandExecutor.java    # TPA 명령어
+│   │   │                   └── TeamValidator.java         # 팀 검증
+│   │   └── resources/
+│   │       ├── plugin.yml                                 # 플러그인 메타데이터
+│   │       └── config.yml                                 # 게임 설정
+├── pom.xml                                                # Maven 설정
+├── README.md                                              # 프로젝트 문서
+├── LICENSE                                                # 라이선스
+└── .gitignore                                             # Git 무시 파일
 ```
 
-### 테스트 명령어 예시
+## 🌿 브랜치 전략
 
-```bash
-# 점령 시간을 10초로 설정
-/test capture-time set 10
+이 프로젝트는 **2-브랜치 전략**을 사용합니다:
 
-# 현재 설정 확인
-/test capture-time status
+### 브랜치 구조
 
-# 원래 시간(5분)으로 복구
-/test capture-time reset
-
-# 재탈환 시간을 5초로 설정
-/test recapture-time set 5
-
-# 재탈환 시간 확인
-/test recapture-time status
-
-# 재탈환 시간 원래대로 복구
-/test recapture-time reset
+```
+develop (개발 브랜치, 기본) ──────► release (출시 브랜치)
+    ↑
+    │
+feature/* (기능 브랜치, 선택적)
 ```
 
-### 점령지 관리 예시
+### 브랜치 설명
 
-```bash
-# 점령지 목록 확인
-/zone list
+#### `develop` (개발 브랜치) - **기본 브랜치**
+- 모든 개발 작업 진행
+- 새로운 기능 개발 및 버그 수정
+- 활발한 커밋 및 푸시
+- 불안정할 수 있음
 
-# 현재 위치에 제네시스 설정 (15x15 정사각형)
-/zone set center
+#### `release` (출시 브랜치)
+- 안정화된 릴리즈 버전만 포함
+- 테스트 완료 후 배포용
+- JAR 파일 배포는 이 브랜치에서
+- GitHub Release 태그 생성
 
-# 점령지 좌표 초기화 (모든 점령지 설정 시)
-/zone reset
+### 작업 흐름
 
-# 모든 점령지 강제 초기화 (주의: 모든 설정 삭제)
-/zone force-reset
+1. **개발**: `develop` 브랜치에서 직접 작업
+   ```bash
+   git checkout develop
+   git add .
+   git commit -m "feat: 새로운 기능 추가"
+   git push origin develop
+   ```
 
-# 점령지 설정 다시 로드
-/zone reload
-```
+2. **복잡한 기능 개발** (선택적):
+   ```bash
+   git checkout develop
+   git checkout -b feature/awesome-feature
+   # 작업...
+   git commit -m "feat: awesome feature 구현"
+   git checkout develop
+   git merge feature/awesome-feature
+   git push origin develop
+   ```
 
-### 게임 정보 확인 예시
+3. **출시 준비**:
+   ```bash
+   # 테스트 및 안정화 완료 후
+   git checkout release
+   git merge develop
+   git tag -a v1.0.0 -m "Release version 1.0.0"
+   git push origin release --tags
+   ```
 
-```bash
-# 전체 게임 정보 확인
-/game info
+4. **GitHub Release 생성**:
+   - GitHub에서 태그를 기반으로 Release 생성
+   - 빌드된 JAR 파일 첨부
+   - 변경사항 작성
 
-# 팀 정보만 확인
-/game info team
-
-# 점령지 정보만 확인
-/game info capture
-
-# 게임 규칙 확인
-/game info game
-```
-
-## 버그 수정
-
-### v2.0.0-beta에서 수정된 문제들
-
--  테스트 모드에서 `/game stop` 명령어 작동 문제 해결
--  TabCompleter 자동완성 오류 수정
--  게임 종료 후 상태 초기화 문제 해결
--  메모리 누수 및 성능 문제 해결
--  사용되지 않는 코드 정리
--  점령지 크기를 15x15 정사각형으로 확장
--  신호기 Y좌표 계산 오류 수정
--  색유리 자동 설치 문제 해결
--  재탈환 시간 테스트 명령어 추가
--  강제 점령지 초기화 명령어 추가
-
-## 호환성
-
--  **Minecraft**: 1.16.5 이상
--  **API**: Bukkit/Paper 완전 호환
--  **메모리**: 기존 대비 30% 감소
--  **성능**: 2-3배 빠른 응답 속도
-
-## 라이선스
+## 📄 라이선스
 
 이 프로젝트는 **Creative Commons Attribution-NonCommercial 4.0 International License** 하에 배포됩니다.
 
 ### 라이선스 요약
 
--  ✅ **자유로운 사용**: 누구나 이 플러그인을 사용할 수 있습니다
--  ✅ **수정 및 배포**: 코드를 수정하고 배포할 수 있습니다
--  ✅ **저작자 표시**: 원작자에게 적절한 크레딧을 제공해야 합니다
--  ❌ **상업적 사용 금지**: 상업적 목적으로 사용할 수 없습니다
+- ✅ **자유로운 사용**: 누구나 이 플러그인을 사용할 수 있습니다
+- ✅ **수정 및 배포**: 코드를 수정하고 배포할 수 있습니다
+- ✅ **저작자 표시**: 원작자에게 적절한 크레딧을 제공해야 합니다
+- ❌ **상업적 사용 금지**: 상업적 목적으로 사용할 수 없습니다
 
 ### 상세 정보
 
--  **전체 라이선스 (영어, 한글)**: [LICENSE](LICENSE) 파일 참조
--  **라이선스 웹사이트**: https://creativecommons.org/licenses/by-nc/4.0/
--  **문의사항**: 상업적 사용이나 라이선스 관련 문의가 있으시면 연락주세요
+- **전체 라이선스**: [LICENSE](LICENSE) 파일 참조
+- **라이선스 웹사이트**: https://creativecommons.org/licenses/by-nc/4.0/
+- **문의사항**: 상업적 사용이나 라이선스 관련 문의가 있으시면 이슈로 연락주세요
 
 ### 사용 시 주의사항
 
@@ -497,58 +436,78 @@ boolean debug = getConfig().getBoolean("settings.debug");
 2. **상업적 사용 금지**: 수익을 목적으로 한 사용은 금지됩니다
 3. **수정 배포**: 수정된 버전을 배포할 때는 원본과의 차이점을 명시해주세요
 
-## 브랜치 전략
-
-이 프로젝트는 간소화된 2-브랜치 전략을 사용합니다:
-
-### 주요 브랜치
-
--  **`develop`**: 개발 브랜치 (기본 브랜치)
-   - 새로운 기능 개발
-   - 버그 수정 및 개선
-   - 활발한 개발 작업
-   - 모든 커밋은 여기로
-
--  **`release`**: 출시 브랜치
-   - 안정화된 릴리즈 버전
-   - 테스트 완료 후 배포용
-   - jar 파일 배포는 이 브랜치에서
-   - GitHub Release 태그
-
-### 작업 흐름
-
-```
-develop (개발) → release (출시)
-   ↓
-feature/* (선택적)
-```
-
-1. **개발**: `develop` 브랜치에서 직접 작업
-2. **기능 개발** (선택): 복잡한 기능은 `feature/*` 브랜치 → `develop` 병합
-3. **출시**: 안정화된 `develop` → `release` 브랜치로 병합
-4. **릴리즈**: `release` 브랜치에 태그 생성 및 jar 배포
-
-## 기여하기
+## 🤝 기여하기
 
 이 프로젝트에 기여하고 싶으시다면:
 
-1. 이 저장소를 포크하세요
-2. `develop` 브랜치를 기반으로 새로운 기능 브랜치를 생성하세요
-   - `git checkout develop`
-   - `git checkout -b feature/AmazingFeature`
-3. 변경사항을 커밋하세요 (`git commit -m 'Add some AmazingFeature'`)
-4. 브랜치에 푸시하세요 (`git push origin feature/AmazingFeature`)
+1. 저장소를 포크하세요
+2. `develop` 브랜치 기반으로 기능 브랜치를 생성하세요
+   ```bash
+   git checkout develop
+   git checkout -b feature/AmazingFeature
+   ```
+3. 변경사항을 커밋하세요
+   ```bash
+   git commit -m "feat: Add some AmazingFeature"
+   ```
+4. 브랜치에 푸시하세요
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
 5. `develop` 브랜치로 Pull Request를 생성하세요
 
-## 문의 및 지원
+### 커밋 컨벤션
 
--  **이슈 리포트**: [GitHub Issues](https://github.com/misty6760/mc-occupy-plugin/issues)
--  **기능 요청**: [GitHub Discussions](https://github.com/misty6760/mc-occupy-plugin/discussions)
--  **버그 리포트**: 이슈 템플릿을 사용하여 상세한 정보를 제공해주세요
+- `feat`: 새로운 기능 추가
+- `fix`: 버그 수정
+- `docs`: 문서 수정
+- `style`: 코드 포맷팅
+- `refactor`: 코드 리팩토링
+- `test`: 테스트 코드
+- `chore`: 빌드 설정 등
+
+## 📞 문의 및 지원
+
+- **이슈 리포트**: [GitHub Issues](https://github.com/misty6760/mc-occupy-plugin/issues)
+- **기능 요청**: [GitHub Discussions](https://github.com/misty6760/mc-occupy-plugin/discussions)
+- **버그 리포트**: 이슈 작성 시 상세한 정보를 포함해주세요
+
+## 📜 변경 이력
+
+### v1.0.0 (개발 중)
+
+#### 추가
+- ✨ 5개 점령지 시스템 (기본 4개 + 중앙 1개)
+- ✨ 팀 기반 점령전 게임
+- ✨ 실시간 스코어보드 시스템
+- ✨ TPA 시스템 (팀원 전용)
+- ✨ 교환 시스템 (청금석/철 → 경험치/식량)
+- ✨ 자동 리스폰 시스템
+- ✨ 점령지별 버프 효과
+- ✨ 신호기 자동 설치 기능
+- ✨ 테스트 모드 (점령 시간 단축)
+
+#### 개선
+- 🎨 기본 점령지 진행률 알림 제거 (스팸 방지)
+- 🎨 중앙 점령지만 진행률 알림 유지
+- 🎨 UI/UX 개선 (액션바, 보스바, 타이틀)
+- ⚡ 코드 리팩토링 (단일 책임 원칙 적용)
+- ⚡ 성능 최적화
+
+#### 수정
+- 🐛 신호기 설치 순서 수정 (색유리 → 신호기 → 철블록)
+- 🐛 점령지 크기를 15×15 정사각형으로 수정
+- 🐛 스코어보드 점수 표시 방식 개선
 
 ---
 
-**개발팀**: Misty6760  
-**최종 업데이트**: 2025년 9월 14일  
-**버전**: Beta v2.0.0  
-**상태**: 안정 버전 (베타)
+**개발자**: [Misty6760](https://github.com/misty6760)  
+**최종 업데이트**: 2025년 11월 16일  
+**버전**: 1.0.0 (개발 중)  
+**상태**: 개발 중
+
+## ⭐ 스타 히스토리
+
+이 프로젝트가 도움이 되었다면 스타를 눌러주세요! ⭐
+
+[![Star History Chart](https://api.star-history.com/svg?repos=misty6760/mc-occupy-plugin&type=Date)](https://star-history.com/#misty6760/mc-occupy-plugin&Date)
