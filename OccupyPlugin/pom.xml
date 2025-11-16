@@ -12,7 +12,7 @@
   <name>OccupyPlugin</name>
 
   <properties>
-    <java.version>16</java.version>
+    <java.version>8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -23,7 +23,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.11.0</version>
         <configuration>
-          <release>16</release>
+          <release>8</release>
           <compilerArgs>
             <arg>-parameters</arg>
           </compilerArgs>

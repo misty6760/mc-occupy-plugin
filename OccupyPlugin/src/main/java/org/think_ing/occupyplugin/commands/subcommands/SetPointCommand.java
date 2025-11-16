@@ -13,6 +13,7 @@ import org.think_ing.occupyplugin.commands.SubCommand;
 import org.think_ing.occupyplugin.game.GameManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -194,6 +195,6 @@ public class SetPointCommand implements SubCommand {
                 return new ArrayList<>(pointsSection.getKeys(false));
             }
         }
-        return List.of();
+        return Collections.emptyList();
     }
 }

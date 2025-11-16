@@ -7,7 +7,6 @@ import org.think_ing.occupyplugin.commands.CommandManager;
 import org.think_ing.occupyplugin.commands.TabCompleteManager;
 import org.think_ing.occupyplugin.config.TeamConfigManager;
 import org.think_ing.occupyplugin.events.ExchangeListener;
-import org.think_ing.occupyplugin.events.RespawnListener;
 import org.think_ing.occupyplugin.events.TeamListener;
 import org.think_ing.occupyplugin.game.GameManager;
 import org.think_ing.occupyplugin.tpa.TPACommandExecutor;
@@ -56,7 +55,6 @@ public final class OccupyPlugin extends JavaPlugin {
         TeamConfigManager teamConfigManager = new TeamConfigManager(this);
         getServer().getPluginManager().registerEvents(new TeamListener(teamConfigManager), this);
         getServer().getPluginManager().registerEvents(new ExchangeListener(this), this);
-        getServer().getPluginManager().registerEvents(new RespawnListener(this), this);
 
         logger.info(ChatColor.DARK_GREEN + "========================================");
         logger.info(ChatColor.GREEN + "      OccupyPlugin has been enabled!    ");

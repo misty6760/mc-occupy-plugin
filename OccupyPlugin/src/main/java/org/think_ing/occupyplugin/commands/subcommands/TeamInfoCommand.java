@@ -10,6 +10,7 @@ import org.think_ing.occupyplugin.OccupyPlugin;
 import org.think_ing.occupyplugin.commands.SubCommand;
 import org.think_ing.occupyplugin.game.GameManager;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,7 +104,7 @@ public class TeamInfoCommand implements SubCommand {
                     .filter(name -> name.toLowerCase().startsWith(args[1].toLowerCase()))
                     .collect(Collectors.toList());
         }
-        return List.of();
+        return Collections.emptyList();
     }
 }
 

@@ -67,13 +67,6 @@ occupation_points:
     capture_time: 600
     recapture_time: 900
 
-# 커스텀 리스폰 설정
-respawn:
-  enabled: true
-  y_coordinate: 100
-  slow_falling_duration: 200  # 10초 (20 tick = 1초)
-  slow_falling_amplifier: 0
-
 # 교환 시스템 설정
 exchange:
   enabled: true
