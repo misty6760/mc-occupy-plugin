@@ -74,7 +74,8 @@ public class InfoCommand implements SubCommand {
 
         // 교환 시스템
         sender.sendMessage(ChatColor.GREEN + "■ 교환 시스템");
-        sender.sendMessage(ChatColor.WHITE + "  왼손에 아이템을 들고 " + ChatColor.YELLOW + "F키" + ChatColor.WHITE + "를 눌러 교환:");
+        sender.sendMessage(ChatColor.WHITE + "  " + ChatColor.YELLOW + "웅크리기(Shift)" + ChatColor.WHITE
+                + " 상태에서 왼손에 아이템을 들고 " + ChatColor.YELLOW + "F키" + ChatColor.WHITE + "를 눌러 교환:");
         sender.sendMessage(ChatColor.GRAY + "  • " + ChatColor.AQUA + "청금석 64개" + ChatColor.GRAY + " → "
                 + ChatColor.GREEN + "경험치 병 64개");
         sender.sendMessage(ChatColor.GRAY + "  • " + ChatColor.WHITE + "철괴 32개" + ChatColor.GRAY + " → "
@@ -87,6 +88,8 @@ public class InfoCommand implements SubCommand {
         sender.sendMessage(ChatColor.GRAY + "  • " + ChatColor.WHITE + "/tpaaccept" + ChatColor.GRAY + " - 요청 수락");
         sender.sendMessage(ChatColor.GRAY + "  • " + ChatColor.WHITE + "/tpadeny" + ChatColor.GRAY + " - 요청 거부");
         sender.sendMessage(ChatColor.GRAY + "    ※ 같은 팀원끼리만 가능, 30초 후 자동 만료");
+        sender.sendMessage(ChatColor.GRAY + "    ※ 요청 쿨다운: " + ChatColor.YELLOW + "10초" + ChatColor.GRAY
+                + ", 텔레포트 쿨다운: " + ChatColor.YELLOW + "5분");
         sender.sendMessage("");
 
         // 관리자 명령어

@@ -71,6 +71,12 @@ public class ExchangeListener implements Listener {
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         Player player = event.getPlayer();
+
+        // 웅크리기 상태가 아니면 무시
+        if (!player.isSneaking()) {
+            return;
+        }
+
         PlayerInventory inventory = player.getInventory();
         ItemStack offHandItem = inventory.getItemInOffHand();
 

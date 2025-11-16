@@ -99,7 +99,18 @@ public class TPACommandExecutor implements CommandExecutor {
       // 쿨다운 확인
       if (tpaManager.isOnCooldown(player)) {
          int remaining = tpaManager.getRemainingCooldown(player);
-         player.sendMessage(ChatColor.RED + "텔레포트 요청 쿨다운 중입니다. (" + remaining + "초 남음)");
+         String cooldownType = tpaManager.getCooldownType(player);
+         if ("teleport".equals(cooldownType)) {
+            int minutes = remaining / 60;
+            int seconds = remaining % 60;
+            if (minutes > 0) {
+               player.sendMessage(ChatColor.RED + "텔레포트 쿨다운 중입니다. (" + minutes + "분 " + seconds + "초 남음)");
+            } else {
+               player.sendMessage(ChatColor.RED + "텔레포트 쿨다운 중입니다. (" + seconds + "초 남음)");
+            }
+         } else {
+            player.sendMessage(ChatColor.RED + "텔레포트 요청 쿨다운 중입니다. (" + remaining + "초 남음)");
+         }
          return true;
       }
 
