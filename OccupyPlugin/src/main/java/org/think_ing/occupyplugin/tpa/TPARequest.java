@@ -45,16 +45,27 @@ public class TPARequest {
 
     /**
      * 요청 만료
+     * @param wasAccepted 수락되었는지 여부 (수락되었으면 만료 메시지 출력 안 함)
      */
-    public void expire() {
+    public void expire(boolean wasAccepted) {
         this.expired = true;
         
-        if (requester.isOnline()) {
-            requester.sendMessage(ChatColor.RED + target.getName() + "님에게 보낸 텔레포트 요청이 만료되었습니다.");
+        // 수락되지 않았을 때만 만료 메시지 출력
+        if (!wasAccepted) {
+            if (requester.isOnline()) {
+                requester.sendMessage(ChatColor.RED + target.getName() + "님에게 보낸 텔레포트 요청이 만료되었습니다.");
+            }
+            if (target.isOnline()) {
+                target.sendMessage(ChatColor.RED + requester.getName() + "님의 텔레포트 요청이 만료되었습니다.");
+            }
         }
-        if (target.isOnline()) {
-            target.sendMessage(ChatColor.RED + requester.getName() + "님의 텔레포트 요청이 만료되었습니다.");
-        }
+    }
+    
+    /**
+     * 요청 만료 (기존 호환성 유지)
+     */
+    public void expire() {
+        expire(false);
     }
 
     /**

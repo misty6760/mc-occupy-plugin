@@ -122,9 +122,17 @@ public class ExchangeListener implements Listener {
         ItemStack output = new ItemStack(recipe.getOutput(), recipe.getOutputAmount());
         inventory.addItem(output);
 
-        player.sendMessage(ChatColor.GREEN + "교환 완료! "
-                + recipe.getInput().name() + " x" + recipe.getInputAmount()
-                + " → " + recipe.getOutput().name() + " x" + recipe.getOutputAmount());
+        // 한글 메시지 출력
+        String itemName;
+        if (recipe.getInput() == Material.LAPIS_LAZULI) {
+            itemName = "청금석";
+        } else if (recipe.getInput() == Material.IRON_INGOT) {
+            itemName = "철";
+        } else {
+            itemName = recipe.getInput().name();
+        }
+
+        player.sendMessage(ChatColor.GREEN + itemName + " 교환 완료!");
 
         return true;
     }

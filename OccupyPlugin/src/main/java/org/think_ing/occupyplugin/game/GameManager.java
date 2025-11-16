@@ -20,7 +20,7 @@ import java.util.Map;
  * 게임의 전체적인 흐름을 조율합니다
  */
 public class GameManager {
-    
+
     private final OccupyPlugin plugin;
     private final ConfigLoader configLoader;
     private final CaptureSystem captureSystem;
@@ -35,7 +35,7 @@ public class GameManager {
     private String centerPointName;
     private boolean isGameRunning = false;
     private BukkitRunnable gameTask;
-    
+
     public GameManager(OccupyPlugin plugin) {
         this.plugin = plugin;
         this.configLoader = new ConfigLoader(plugin);
@@ -58,7 +58,7 @@ public class GameManager {
         occupationPoints = configLoader.loadOccupationPoints();
         participatingTeamNames = configLoader.loadParticipatingTeams();
         centerPointName = configLoader.loadCenterPointName();
-    }
+                }
     
     /**
      * 게임 시작
@@ -73,7 +73,7 @@ public class GameManager {
         bossBarManager.createCenterBossBar();
         scoreboardManager.createScoreboard();
         scoreboardManager.showToAllPlayers();
-        
+
         gameTask = new BukkitRunnable() {
             @Override
             public void run() {
@@ -89,7 +89,7 @@ public class GameManager {
         notificationManager.broadcastTitle(ChatColor.GREEN + "점령전 시작!", 
                 "승리 조건: 5점 획득", 10, 70, 20);
     }
-    
+
     /**
      * 테스트 모드로 게임 시작
      * 기본 점령지: 1분 (60초), 중앙 점령지: 2분 (120초)
@@ -141,7 +141,7 @@ public class GameManager {
         
         resetGame();
     }
-    
+
     /**
      * 게임 초기화
      */
@@ -152,7 +152,7 @@ public class GameManager {
             bossBarManager.hideCaptureBossBar(player);
         }
     }
-    
+
     /**
      * 점령지 업데이트
      */
@@ -176,15 +176,15 @@ public class GameManager {
         List<Team> teams = getParticipatingTeams();
         Map<Team, Integer> scores = scoreManager.calculateScores(occupationPoints, teams);
         Team winningTeam = scoreManager.getWinningTeam(scores);
-        
+
         if (winningTeam != null) {
             int finalScore = scores.get(winningTeam);
             @SuppressWarnings("deprecation")
             ChatColor teamColor = winningTeam.getColor();
             @SuppressWarnings("deprecation")
             String teamDisplayName = winningTeam.getDisplayName();
-            
-            notificationManager.broadcastTitle(
+
+        notificationManager.broadcastTitle(
                     teamColor + teamDisplayName + " 팀 승리!",
                     "최종 점수: " + finalScore + "점",
                     10, 100, 20
@@ -193,14 +193,14 @@ public class GameManager {
             stopGame();
         }
     }
-    
+
     /**
      * 참여 팀 객체 리스트 조회
      */
     private List<Team> getParticipatingTeams() {
         List<Team> teams = new ArrayList<>();
         Scoreboard scoreboard = plugin.getServer().getScoreboardManager().getMainScoreboard();
-        
+
         for (String teamName : participatingTeamNames) {
             Team team = scoreboard.getTeam(teamName);
             if (team != null) {
@@ -209,7 +209,7 @@ public class GameManager {
         }
         
         return teams;
-    }
+                    }
     
     /**
      * 보스바 업데이트
@@ -219,14 +219,14 @@ public class GameManager {
         if (centerPoint != null) {
             bossBarManager.updateCenterBossBar(centerPoint);
         }
-        
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             // 중앙 점령지에 있는 경우 개별 보스바 숨김
             if (centerPoint != null && captureSystem.isPlayerInPoint(player, centerPoint)) {
                 bossBarManager.hideCaptureBossBar(player);
                 continue;
             }
-            
+
             // 기본 점령지의 보스바 표시
             updatePlayerCaptureBossBar(player);
         }
@@ -236,30 +236,30 @@ public class GameManager {
      * 플레이어의 개별 보스바 업데이트
      */
     private void updatePlayerCaptureBossBar(Player player) {
-        boolean inAnyZone = false;
+            boolean inAnyZone = false;
         
-        for (OccupationPoint point : occupationPoints) {
+            for (OccupationPoint point : occupationPoints) {
             // 중앙 점령지는 건너뜀
-            if (point.getName().equals(centerPointName)) {
-                continue;
-            }
-            
+                if (point.getName().equals(centerPointName)) {
+                    continue;
+                }
+
             // 점령 진행 중인 점령지에 있고, 자신의 팀이 점령하려는 중이 아닌 경우
             if (captureSystem.isPlayerInPoint(player, point) && point.getCaptureProgress() > 0) {
                 Team playerTeam = captureSystem.getPlayerTeam(player);
                 if (playerTeam != null && !playerTeam.equals(point.getOwner())) {
-                    bossBarManager.showCaptureBossBar(player, point);
-                    inAnyZone = true;
-                    break;
+                        bossBarManager.showCaptureBossBar(player, point);
+                        inAnyZone = true;
+                        break;
+                    }
                 }
             }
-        }
         
-        if (!inAnyZone) {
-            bossBarManager.hideCaptureBossBar(player);
+            if (!inAnyZone) {
+                bossBarManager.hideCaptureBossBar(player);
         }
     }
-    
+
     /**
      * 중앙 점령지 조회
      */
@@ -271,7 +271,7 @@ public class GameManager {
         }
         return null;
     }
-    
+
     /**
      * 플레이어의 팀 조회 (외부 접근용)
      */
@@ -285,7 +285,7 @@ public class GameManager {
     public boolean isGameRunning() {
         return isGameRunning;
     }
-    
+
     /**
      * 참여 팀 목록 조회
      */

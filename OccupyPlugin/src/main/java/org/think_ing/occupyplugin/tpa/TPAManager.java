@@ -68,7 +68,10 @@ public class TPAManager {
         // 텔레포트 실행
         boolean success = request.teleport();
 
-        // 요청 제거
+        // 요청 제거 (수락되었으므로 만료 메시지 출력 안 함)
+        if (success) {
+            request.expire(true); // 수락되었음을 표시
+        }
         pendingRequests.remove(targetUUID);
 
         return success;
@@ -152,8 +155,10 @@ public class TPAManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (!request.isExpired()) {
-                    request.expire();
+                // 요청이 아직 존재하고 만료되지 않았을 때만 만료 처리
+                TPARequest currentRequest = pendingRequests.get(request.getTarget().getUniqueId());
+                if (currentRequest != null && currentRequest == request && !request.isExpired()) {
+                    request.expire(false); // 만료 메시지 출력
                     pendingRequests.remove(request.getTarget().getUniqueId());
                 }
             }

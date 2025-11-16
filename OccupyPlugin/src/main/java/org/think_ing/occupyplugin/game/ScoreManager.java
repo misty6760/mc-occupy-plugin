@@ -75,9 +75,24 @@ public class ScoreManager {
             }
         }
         
-        // 세트 보너스: 모든 기본 점령지 점령 시 +1점
-        if (totalBasePoints > 0 && basePointsOwned == totalBasePoints) {
+        // 세트 보너스 1: 기본 점령지 4개 모두 점령 시 +1점
+        if (totalBasePoints == 4 && basePointsOwned == 4) {
             score += 1;
+        }
+        
+        // 세트 보너스 2: 기본 점령지 2개 + 중앙 점령 시 +1점
+        if (basePointsOwned >= 2 && score >= 4) {
+            // 중앙 점령지가 있는지 확인 (score에 2점이 포함되어 있으면 중앙 점령)
+            boolean hasCenter = false;
+            for (OccupationPoint point : occupationPoints) {
+                if (point.getName().equals(centerPointName) && point.getOwner() != null && point.getOwner().equals(team)) {
+                    hasCenter = true;
+                    break;
+                }
+            }
+            if (hasCenter) {
+                score += 1;
+            }
         }
         
         return score;

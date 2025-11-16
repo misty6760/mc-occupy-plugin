@@ -10,24 +10,24 @@ import org.think_ing.occupyplugin.config.TeamConfigManager;
  * /team 명령어를 감지하여 자동으로 참여 팀 목록을 관리합니다
  */
 public class TeamListener implements Listener {
-    
+
     private final TeamConfigManager teamConfigManager;
-    
+
     public TeamListener(TeamConfigManager teamConfigManager) {
         this.teamConfigManager = teamConfigManager;
     }
-    
+
     @EventHandler
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         String message = event.getMessage().toLowerCase();
         String[] args = message.split(" ");
-        
+
         // /team add <teamname> 명령어 감지
         if (isTeamAddCommand(args)) {
             String teamName = args[2];
             teamConfigManager.addTeam(teamName, event.getPlayer());
         }
-        
+
         // /team remove <teamname> 명령어 감지
         if (isTeamRemoveCommand(args)) {
             String teamName = args[2];

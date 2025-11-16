@@ -51,19 +51,19 @@ public class CommandManager implements CommandExecutor {
         if (subCommand == null) {
             sender.sendMessage(ChatColor.RED + "알 수 없는 명령어입니다.");
             sendUsageMessage(sender);
-            return true;
-        }
+                        return true;
+                    }
 
         return subCommand.execute(sender, args);
-    }
+                }
 
     private void sendUsageMessage(CommandSender sender) {
         sender.sendMessage(ChatColor.YELLOW + "=== Occupy Plugin 명령어 ===");
         for (SubCommand subCommand : subCommands.values()) {
             sender.sendMessage(
                     ChatColor.WHITE + subCommand.getUsage() + ChatColor.GRAY + " - " + subCommand.getDescription());
-        }
-    }
+                    }
+                }
 
     /**
      * 등록된 서브 명령어 목록 반환

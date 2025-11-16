@@ -53,15 +53,15 @@ public class VictoryChecker {
             // 전체 기본 점령지 수
             long totalBasePoints = countTotalBasePoints(occupationPoints);
             
-            // 승리 조건 1: 모든 기본 점령지 점령
-            if (totalBasePoints > 0 && ownedBasePoints == totalBasePoints) {
-                endGame(team, "모든 기본 점령지를 점령했습니다!", onVictory);
+            // 승리 조건 1: 기본 점령지 4개 모두 점령 시 보너스 1점으로 5점 획득
+            if (totalBasePoints > 0 && ownedBasePoints == totalBasePoints && totalBasePoints == 4) {
+                endGame(team, "모든 기본 점령지를 점령했습니다! (보너스 +1점)", onVictory);
                 return;
             }
             
-            // 승리 조건 2: 기본 점령지 2개 + 중앙 점령
+            // 승리 조건 2: 기본 점령지 2개를 먼저 점령 후 중앙 점령지를 점령하면 4점 + 보너스 1점 = 5점
             if (ownedBasePoints >= 2 && ownsCenter) {
-                endGame(team, "기본 점령지 2개와 중앙을 점령했습니다!", onVictory);
+                endGame(team, "기본 점령지 2개와 중앙을 점령했습니다! (보너스 +1점)", onVictory);
                 return;
             }
         }
