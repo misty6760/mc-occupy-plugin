@@ -144,9 +144,21 @@ public class CaptureSystem {
      */
     private void recapturePoint(OccupationPoint point, Team capturingTeam, int playerCount) {
         Team originalOwner = point.getOwner();
+
+        // 탈환이 시작될 때 진행도를 0으로 초기화
+        // 점령 완료 후 진행도는 0이므로, 탈환이 시작되면 0에서 시작해야 함
         double oldProgress = point.getCaptureProgress();
+
+        // 탈환 시작 시 진행도 초기화 (다른 팀이 점령지에 처음 들어왔을 때)
+        // 진행도가 0이거나 음수면 탈환이 시작된 것이므로 0으로 초기화
+        if (oldProgress <= 0) {
+            point.setCaptureProgress(0);
+            oldProgress = 0;
+        }
+
         double progressIncrease = playerCount;
-        point.setCaptureProgress(oldProgress + progressIncrease);
+        double newProgress = oldProgress + progressIncrease;
+        point.setCaptureProgress(newProgress);
 
         // 기존 소유자 팀에게 뺏기는 중 알림 (한 번만)
         if (originalOwner != null && !notifiedUnderAttack.getOrDefault(point, false)) {

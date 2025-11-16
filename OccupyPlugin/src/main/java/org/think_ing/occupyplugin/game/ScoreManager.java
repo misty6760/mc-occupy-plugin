@@ -53,8 +53,11 @@ public class ScoreManager {
         int score = 0;
         int basePointsOwned = 0;
         int totalBasePoints = 0;
+        boolean ownsCenter = false;
         
+        // 점령지 점수 계산 (완전히 점령한 경우에만 점수 부여)
         for (OccupationPoint point : occupationPoints) {
+            // 점령 완료 여부 확인 (owner가 설정되어 있고, 점령 진행도가 완료되어야 함)
             if (point.getOwner() == null || !point.getOwner().equals(team)) {
                 // 점령하지 않은 점령지
                 if (!point.getName().equals(centerPointName)) {
@@ -63,10 +66,23 @@ public class ScoreManager {
                 continue;
             }
             
-            // 팀이 점령한 점령지
+            // 점령 완료 확인: owner가 설정되어 있고, 점령 진행도가 0이어야 함 (점령 완료 시 진행도 초기화됨)
+            // 또는 점령 진행도가 목표 시간 이상이어야 함
+            boolean isFullyCaptured = point.getOwner() != null && point.getOwner().equals(team);
+            
+            if (!isFullyCaptured) {
+                // 점령 진행 중이면 점수 부여 안 함
+                if (!point.getName().equals(centerPointName)) {
+                    totalBasePoints++;
+                }
+                continue;
+            }
+            
+            // 팀이 완전히 점령한 점령지
             if (point.getName().equals(centerPointName)) {
-                // 중앙 점령지: 2점
+                // 중앙 점령지: 완전히 점령했을 때만 2점
                 score += 2;
+                ownsCenter = true;
             } else {
                 // 기본 점령지: 1점
                 score += 1;
@@ -80,19 +96,10 @@ public class ScoreManager {
             score += 1;
         }
         
-        // 세트 보너스 2: 기본 점령지 2개 + 중앙 점령 시 +1점
-        if (basePointsOwned >= 2 && score >= 4) {
-            // 중앙 점령지가 있는지 확인 (score에 2점이 포함되어 있으면 중앙 점령)
-            boolean hasCenter = false;
-            for (OccupationPoint point : occupationPoints) {
-                if (point.getName().equals(centerPointName) && point.getOwner() != null && point.getOwner().equals(team)) {
-                    hasCenter = true;
-                    break;
-                }
-            }
-            if (hasCenter) {
-                score += 1;
-            }
+        // 세트 보너스 2: 기본 점령지 2개 + 중앙 점령 완료 시 +1점
+        // 보너스는 기본 2개(2점) + 중앙 완전 점령(2점) = 4점일 때 +1점
+        if (basePointsOwned >= 2 && ownsCenter) {
+            score += 1;
         }
         
         return score;
