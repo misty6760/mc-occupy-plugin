@@ -108,24 +108,41 @@ public class ExchangeListener implements Listener {
      * @return 교환 성공 여부
      */
     private boolean tryExchange(Player player, PlayerInventory inventory, ExchangeRecipe recipe) {
-        // 필요한 아이템 개수 확인
-        if (!hasEnoughItems(inventory, recipe.getInput(), recipe.getInputAmount())) {
-            player.sendMessage(ChatColor.RED + "교환에 필요한 아이템이 부족합니다: "
-                    + recipe.getInput().name() + " x" + recipe.getInputAmount());
+        ItemStack offHandItem = inventory.getItemInOffHand();
+
+        // 왼손 아이템 확인
+        if (offHandItem == null || offHandItem.getType() != recipe.getInput()) {
+            player.sendMessage(ChatColor.RED + "왼손에 교환할 아이템을 들고 있어야 합니다!");
             return false;
         }
 
-        // 인벤토리에 공간이 있는지 확인
-        if (!hasInventorySpace(inventory, recipe.getOutput(), recipe.getOutputAmount())) {
+        int offHandAmount = offHandItem.getAmount();
+
+        // 왼손에 충분한 아이템이 있는지 확인
+        if (offHandAmount < recipe.getInputAmount()) {
+            player.sendMessage(ChatColor.RED + "왼손에 아이템이 부족합니다! (필요: " + recipe.getInputAmount() + "개, 현재: "
+                    + offHandAmount + "개)");
+            return false;
+        }
+
+        // 인벤토리에 공간이 있는지 확인 (왼손 제외)
+        if (!hasInventorySpaceExcludingOffHand(inventory, recipe.getOutput(), recipe.getOutputAmount())) {
             player.sendMessage(ChatColor.RED + "인벤토리에 공간이 부족합니다!");
             return false;
         }
 
-        // 아이템 제거
-        removeItems(inventory, recipe.getInput(), recipe.getInputAmount());
+        // 왼손 아이템 제거
+        int remainingInOffHand = offHandAmount - recipe.getInputAmount();
+        if (remainingInOffHand > 0) {
+            offHandItem.setAmount(remainingInOffHand);
+        } else {
+            inventory.setItemInOffHand(null);
+        }
 
-        // 아이템 추가
+        // 결과물 생성
         ItemStack output = new ItemStack(recipe.getOutput(), recipe.getOutputAmount());
+
+        // 결과물을 인벤토리에 추가 (왼손은 비어있거나 남은 아이템이 있으므로 인벤토리에 추가)
         inventory.addItem(output);
 
         // 한글 메시지 출력
@@ -144,27 +161,21 @@ public class ExchangeListener implements Listener {
     }
 
     /**
-     * 인벤토리에 충분한 아이템이 있는지 확인
+     * 인벤토리에 공간이 있는지 확인 (왼손 제외)
      */
-    private boolean hasEnoughItems(PlayerInventory inventory, Material material, int amount) {
-        int count = 0;
-        for (ItemStack item : inventory.getContents()) {
-            if (item != null && item.getType() == material) {
-                count += item.getAmount();
-            }
-        }
-        return count >= amount;
-    }
-
-    /**
-     * 인벤토리에 공간이 있는지 확인
-     */
-    private boolean hasInventorySpace(PlayerInventory inventory, Material material, int amount) {
+    private boolean hasInventorySpaceExcludingOffHand(PlayerInventory inventory, Material material, int amount) {
         int maxStackSize = material.getMaxStackSize();
         int remainingAmount = amount;
 
-        // 기존 스택에 추가 가능한지 확인
-        for (ItemStack item : inventory.getContents()) {
+        // 기존 스택에 추가 가능한지 확인 (왼손 제외)
+        ItemStack[] contents = inventory.getContents();
+        for (int i = 0; i < contents.length; i++) {
+            // 왼손 슬롯(40번)은 제외
+            if (i == 40) {
+                continue;
+            }
+
+            ItemStack item = contents[i];
             if (item != null && item.getType() == material && item.getAmount() < maxStackSize) {
                 remainingAmount -= (maxStackSize - item.getAmount());
                 if (remainingAmount <= 0) {
@@ -173,9 +184,15 @@ public class ExchangeListener implements Listener {
             }
         }
 
-        // 빈 슬롯 확인
+        // 빈 슬롯 확인 (왼손 제외)
         int emptySlots = 0;
-        for (ItemStack item : inventory.getContents()) {
+        for (int i = 0; i < contents.length; i++) {
+            // 왼손 슬롯(40번)은 제외
+            if (i == 40) {
+                continue;
+            }
+
+            ItemStack item = contents[i];
             if (item == null || item.getType() == Material.AIR) {
                 emptySlots++;
             }
@@ -183,29 +200,6 @@ public class ExchangeListener implements Listener {
 
         int requiredSlots = (int) Math.ceil((double) remainingAmount / maxStackSize);
         return emptySlots >= requiredSlots;
-    }
-
-    /**
-     * 인벤토리에서 아이템 제거
-     */
-    private void removeItems(PlayerInventory inventory, Material material, int amount) {
-        int remaining = amount;
-        for (ItemStack item : inventory.getContents()) {
-            if (item != null && item.getType() == material) {
-                int itemAmount = item.getAmount();
-                if (itemAmount <= remaining) {
-                    remaining -= itemAmount;
-                    item.setAmount(0);
-                } else {
-                    item.setAmount(itemAmount - remaining);
-                    remaining = 0;
-                }
-
-                if (remaining == 0) {
-                    break;
-                }
-            }
-        }
     }
 
     /**
