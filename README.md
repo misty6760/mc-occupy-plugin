@@ -1,7 +1,7 @@
 # OccupyPlugin (점령 플러그인)
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.16.5-brightgreen.svg)](https://www.minecraft.net/)
-[![Java](https://img.shields.io/badge/Java-16-orange.svg)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-8-orange.svg)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-blue.svg)](LICENSE)
 
 > **주의**: 개인적인 활동을 위한 플러그인입니다.
@@ -101,12 +101,7 @@
 
 - **팀원 전용**: 같은 팀 플레이어끼리만 텔레포트 가능
 - **요청/수락/거부**: 간단한 명령어로 관리
-- **자동 만료**: 60초 후 요청 자동 취소
-
-### 🏁 자동 리스폰
-
-- **팀 스폰 설정 가능**: 각 팀별 리스폰 위치 지정
-- **게임 중 자동 적용**: 죽으면 팀 스폰 위치로 리스폰
+- **자동 만료**: 30초 후 요청 자동 취소
 
 ### 🎨 UI 시스템
 
@@ -121,7 +116,7 @@
 
 - **Minecraft**: 1.16.5
 - **서버**: Paper/Spigot 1.16.5 이상
-- **Java**: JDK 16 이상
+- **Java**: JDK 8 이상 (서버 실행 환경에 맞춰 빌드됨)
 
 ### 빌드
 
@@ -181,8 +176,12 @@ mvn clean package
 ### 교환 시스템
 
 ```
-왼손에 교환할 아이템을 들고 우클릭
+왼손에 교환할 아이템을 들고 F키를 누르세요
 ```
+
+**교환 가능한 아이템**:
+- 청금석 64개 → 경험치 병 64개
+- 철괴 32개 → 빵 64개
 
 ## 🎯 게임 플레이
 
@@ -259,7 +258,7 @@ mvn clean package
 
 ### 기술 스택
 
-- **언어**: Java 16
+- **언어**: Java 8 (서버 호환성을 위해)
 - **빌드 도구**: Apache Maven 3.6+
 - **Minecraft API**: Paper 1.16.5-R0.1-SNAPSHOT
 - **IDE**: Visual Studio Code / IntelliJ IDEA
@@ -268,9 +267,22 @@ mvn clean package
 
 ```xml
 <properties>
-    <java.version>16</java.version>
+    <java.version>8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 </properties>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.11.0</version>
+            <configuration>
+                <release>8</release>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 
 <dependencies>
     <dependency>
@@ -326,8 +338,7 @@ OccupyPlugin/
 │   │   │               │   └── ScoreboardManager.java     # 스코어보드 관리
 │   │   │               ├── events/                        # 이벤트 리스너
 │   │   │               │   ├── TeamListener.java          # 팀 이벤트
-│   │   │               │   ├── ExchangeListener.java      # 교환 이벤트
-│   │   │               │   └── RespawnListener.java       # 리스폰 이벤트
+│   │   │               │   └── ExchangeListener.java      # 교환 이벤트
 │   │   │               ├── game/                          # 게임 로직
 │   │   │               │   ├── GameManager.java           # 게임 관리자
 │   │   │               │   ├── OccupationPoint.java       # 점령지 모델
@@ -482,7 +493,6 @@ feature/* (기능 브랜치, 선택적)
 - ✨ 실시간 스코어보드 시스템
 - ✨ TPA 시스템 (팀원 전용)
 - ✨ 교환 시스템 (청금석/철 → 경험치/식량)
-- ✨ 자동 리스폰 시스템
 - ✨ 점령지별 버프 효과
 - ✨ 신호기 자동 설치 기능
 - ✨ 테스트 모드 (점령 시간 단축)
@@ -498,6 +508,8 @@ feature/* (기능 브랜치, 선택적)
 - 🐛 신호기 설치 순서 수정 (색유리 → 신호기 → 철블록)
 - 🐛 점령지 크기를 15×15 정사각형으로 수정
 - 🐛 스코어보드 점수 표시 방식 개선
+- 🐛 Java 8 호환성 수정 (List.of() 제거)
+- 🐛 교환 시스템 수정 (왼손 아이템 감지)
 
 ---
 
